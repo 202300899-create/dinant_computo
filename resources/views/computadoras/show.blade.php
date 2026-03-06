@@ -173,6 +173,13 @@ color:#374151;
 background:#f9fbfd;
 }
 
+.titulo{
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
 </style>
 
 
@@ -181,7 +188,7 @@ background:#f9fbfd;
 
 <div class="ficha">
 
-<h1>{{ $computadora->nombre_equipo }}</h1>
+<h1 class="titulo">{{ $computadora->nombre_equipo }}</h1>
 
 <div class="ficha-grid">
 

@@ -48,11 +48,19 @@ button{
 .btn-volver{
     background:#6b7280;
 }
+
+.titulo{
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
 </style>
 
 <div class="form-box">
 
-    <h1>Cerrar ticket</h1>
+    <h1 class="titulo">Cerrar ticket</h1>
 
     <form method="POST" action="/mantenimientos/{{ $mantenimiento->id }}">
         @csrf

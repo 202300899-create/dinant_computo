@@ -3,6 +3,13 @@
 @section('content')
 
 <style>
+    .titulo{
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
 .ficha{
     max-width:800px;
     margin:auto;
@@ -51,7 +58,7 @@
 
 <div class="ficha">
 
-    <h1>Mantenimiento #{{ $mantenimiento->id }}</h1>
+    <h1 class="titulo">Mantenimiento #{{ $mantenimiento->id }}</h1>
 
     <div class="item"><strong>Equipo:</strong> {{ $mantenimiento->computadora->nombre_equipo ?? 'Sin equipo' }}</div>
     <div class="item"><strong>Tipo:</strong> {{ $mantenimiento->tipo }}</div>

@@ -247,6 +247,13 @@ z-index:200;
 opacity:1;
 transform:translateX(-50%) translateY(0);
 }
+.titulo{
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
 
 </style>
 
@@ -259,7 +266,7 @@ transform:translateX(-50%) translateY(0);
 
 <div class="ficha">
 
-<h1>{{ $usuario->nombre }}</h1>
+<h1 class="titulo">{{ $usuario->nombre }}</h1>
 
 <div class="item"><strong>Correo:</strong> {{ $usuario->correo }}</div>
 <div class="item"><strong>Área:</strong> {{ $usuario->ubicacion->area_empresa ?? 'Sin área asignada' }}</div>
