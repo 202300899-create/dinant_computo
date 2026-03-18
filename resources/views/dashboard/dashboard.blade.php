@@ -11,7 +11,6 @@
         <p class="dashboard-subtitle">Estado general de las computadoras del sistema</p>
     </div>
 
-
     <!-- TARJETAS PRINCIPALES -->
     <div class="dashboard-grid">
 
@@ -24,7 +23,6 @@
             </div>
         </div>
 
-
         <div class="dashboard-card">
             <p class="card-title">Desktop Activas</p>
             <h2 id="desktopActivas" class="card-number card-green">0</h2>
@@ -33,7 +31,6 @@
                 <img src="{{ asset('images/cpudell.png') }}" class="computer-image">
             </div>
         </div>
-
 
         <div class="dashboard-card">
             <p class="card-title">Laptop Activas</p>
@@ -44,7 +41,6 @@
             </div>
         </div>
 
-
         <div class="dashboard-card">
             <p class="card-title">Desktop Inactivas</p>
             <h2 id="desktopInactivas" class="card-number card-red">0</h2>
@@ -53,7 +49,6 @@
                 <img src="{{ asset('images/cpudell.png') }}" class="computer-image">
             </div>
         </div>
-
 
         <div class="dashboard-card">
             <p class="card-title">Laptop Inactivas</p>
@@ -66,31 +61,24 @@
 
     </div>
 
-
-
-    <!-- TITULO MANTENIMIENTOS -->
     <div class="dashboard-header" style="margin-top:40px;">
         <h1 class="dashboard-title">Mantenimientos próximos de este mes</h1>
     </div>
 
-
-    <!-- NUEVA GRID DE 2 TARJETAS -->
     <div class="dashboard-grid-mantenimientos">
 
-        <!-- PREVENTIVO -->
         <div class="dashboard-card">
             <p class="card-title">Mantenimientos Preventivos</p>
-           <h2 id="mantenimientosPreventivos" class="card-number card-blue">0</h2>
+            <h2 id="mantenimientosPreventivos" class="card-number card-blue">0</h2>
+
             <div class="image-box image-blue">
                 <img src="{{ asset('images/preventivo.png') }}" class="computer-image2">
             </div>
         </div>
 
-
-        <!-- CORRECTIVO -->
         <div class="dashboard-card">
             <p class="card-title">Mantenimientos Correctivos</p>
-           <h2 id="mantenimientosCorrectivos" class="card-number card-yellow">0</h2>
+            <h2 id="mantenimientosCorrectivos" class="card-number card-yellow">0</h2>
 
             <div class="image-box image-yellow">
                 <img src="{{ asset('images/correctivo.png') }}" class="computer-image2">
@@ -100,8 +88,6 @@
     </div>
 
 </div>
-
-
 
 <script>
 
@@ -115,7 +101,6 @@ let mantenimientosPreventivos = {{ $mantenimientosPreventivos }};
 let mantenimientosCorrectivos = {{ $mantenimientosCorrectivos }};
 
 function animarContador(id, valorFinal){
-
     let elemento = document.getElementById(id);
     let contador = 0;
 
@@ -123,7 +108,6 @@ function animarContador(id, valorFinal){
     let incremento = valorFinal / (duracion / 70);
 
     let intervalo = setInterval(function(){
-
         contador += incremento;
 
         if(contador >= valorFinal){
@@ -132,9 +116,7 @@ function animarContador(id, valorFinal){
         }
 
         elemento.innerText = Math.floor(contador);
-
     },30);
-
 }
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -148,11 +130,20 @@ document.addEventListener("DOMContentLoaded", function(){
     animarContador("mantenimientosPreventivos", mantenimientosPreventivos);
     animarContador("mantenimientosCorrectivos", mantenimientosCorrectivos);
 
+    // ✨ EFECTO DESTELLO CADA 4 SEGUNDOS
+    setInterval(() => {
+        document.querySelectorAll('.dashboard-card').forEach(card => {
+            card.classList.add('brillo');
+
+            setTimeout(() => {
+                card.classList.remove('brillo');
+            }, 900);
+        });
+    }, 2000);
+
 });
 
 </script>
-
-
 
 <style>
 
@@ -182,23 +173,17 @@ color:#1f2937;
 color:#6b7280;
 }
 
-/* GRID PRINCIPAL */
-
 .dashboard-grid{
 display:grid;
 grid-template-columns:repeat(5,1fr);
 gap:18px;
 }
 
-/* GRID MANTENIMIENTOS */
-
 .dashboard-grid-mantenimientos{
 display:grid;
 grid-template-columns:repeat(2,1fr);
 gap:18px;
 }
-
-/* TARJETAS */
 
 .dashboard-card{
 background:white;
@@ -208,11 +193,30 @@ text-align:center;
 box-shadow:0 5px 14px rgba(0,0,0,0.07);
 transition:all .25s ease;
 animation:cardEntrada .6s ease;
+position:relative;
+overflow:hidden;
 }
 
 .dashboard-card:hover{
 transform:translateY(-5px);
 box-shadow:0 10px 22px rgba(0,0,0,0.12);
+}
+
+/* ✨ EFECTO BRILLO */
+.dashboard-card.brillo::after{
+content:"";
+position:absolute;
+top:0;
+left:-100%;
+width:100%;
+height:100%;
+background:linear-gradient(120deg, transparent, rgba(255,255,255,0.5), transparent);
+animation:brilloAnim 0.9s ease;
+}
+
+@keyframes brilloAnim{
+0%{left:-100%;}
+100%{left:100%;}
 }
 
 .card-title{
@@ -227,14 +231,10 @@ margin:6px 0 10px 0;
 animation:numberPop .4s ease;
 }
 
-/* COLORES */
-
 .card-blue{color:#1d4ed8;}
 .card-green{color:#15803d;}
 .card-red{color:#b91c1c;}
 .card-yellow{color:#d97706;}
-
-/* CAJA IMAGEN */
 
 .image-box{
 width:100%;
@@ -250,8 +250,6 @@ overflow:hidden;
 .image-green{background:#4ade80;}
 .image-red{background:#f87171;}
 .image-yellow{background:#facc15;}
-
-/* IMAGEN */
 
 .computer-image{
 width:220px;
@@ -278,44 +276,24 @@ transition:transform .3s ease;
 transform:scale(1.08);
 }
 
-/* ANIMACIONES */
-
 @keyframes fadeIn{
 from{opacity:0}
 to{opacity:1}
 }
 
 @keyframes slideDown{
-from{
-opacity:0;
-transform:translateY(-15px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+from{opacity:0; transform:translateY(-15px);}
+to{opacity:1; transform:translateY(0);}
 }
 
 @keyframes cardEntrada{
-from{
-opacity:0;
-transform:translateY(15px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
+from{opacity:0; transform:translateY(15px);}
+to{opacity:1; transform:translateY(0);}
 }
 
 @keyframes numberPop{
-from{
-transform:scale(.7);
-opacity:.6;
-}
-to{
-transform:scale(1);
-opacity:1;
-}
+from{transform:scale(.7); opacity:.6;}
+to{transform:scale(1); opacity:1;}
 }
 
 </style>

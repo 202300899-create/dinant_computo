@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
 {
-
     /* =========================
         LISTADO + BUSCADOR
     ========================= */
@@ -18,15 +17,14 @@ class UsuarioController extends Controller
     {
         $buscar = $request->buscar;
 
-        $usuarios = Usuario::with(['ubicacion','computadoras'])
-        ->when($buscar, function($query) use ($buscar){
-            $query->where('nombre','like',"%$buscar%");
-        })
-        ->get();
+        $usuarios = Usuario::with(['ubicacion', 'computadoras'])
+            ->when($buscar, function ($query) use ($buscar) {
+                $query->where('nombre', 'like', "%$buscar%");
+            })
+            ->get();
 
-        return view('usuarios.index', compact('usuarios','buscar'));
+        return view('usuarios.index', compact('usuarios', 'buscar'));
     }
-
 
     /* =========================
         FORM CREAR
@@ -39,9 +37,8 @@ class UsuarioController extends Controller
         return view('usuarios.create', compact('ubicaciones'));
     }
 
-
     /* =========================
-        GUARDAR
+        GUARDAR (CORREGIDO 🔥)
     ========================= */
 
     public function store(Request $request)
@@ -50,21 +47,21 @@ class UsuarioController extends Controller
             'nombre' => 'required',
             'correo' => 'required|email',
             'rol' => 'required',
-            'estado' => 'required'
+            'id_ubicacion' => 'required|exists:ubicaciones,id'
         ]);
 
-        Usuario::create([
+        $usuario = Usuario::create([
             'nombre' => $request->nombre,
             'correo' => $request->correo,
             'rol' => $request->rol,
-            'estado' => $request->estado,
+            'estado' => 'Activo', // 🔥 automático
             'id_ubicacion' => $request->id_ubicacion
         ]);
 
-        return redirect()->route('usuarios.index')
-        ->with('success','Usuario creado correctamente');
+        // 🔥 REDIRECCIÓN A LA FICHA
+        return redirect()->route('usuarios.show', $usuario->id)
+            ->with('success', 'Usuario creado correctamente');
     }
-
 
     /* =========================
         FICHA USUARIO
@@ -72,8 +69,8 @@ class UsuarioController extends Controller
 
     public function show($id)
     {
-        $usuario = Usuario::with(['ubicacion','computadoras'])
-        ->findOrFail($id);
+        $usuario = Usuario::with(['ubicacion', 'computadoras'])
+            ->findOrFail($id);
 
         $computadorasDisponibles = Computadora::whereNull('id_usuario_asignado')->get();
 
@@ -82,7 +79,6 @@ class UsuarioController extends Controller
             'computadorasDisponibles'
         ));
     }
-
 
     /* =========================
         FORM EDITAR
@@ -93,9 +89,8 @@ class UsuarioController extends Controller
         $usuario = Usuario::findOrFail($id);
         $ubicaciones = Ubicacion::all();
 
-        return view('usuarios.edit', compact('usuario','ubicaciones'));
+        return view('usuarios.edit', compact('usuario', 'ubicaciones'));
     }
-
 
     /* =========================
         ACTUALIZAR
@@ -109,7 +104,8 @@ class UsuarioController extends Controller
             'nombre' => 'required',
             'correo' => 'required|email',
             'rol' => 'required',
-            'estado' => 'required'
+            'estado' => 'required',
+            'id_ubicacion' => 'required|exists:ubicaciones,id'
         ]);
 
         $usuario->nombre = $request->nombre;
@@ -121,9 +117,8 @@ class UsuarioController extends Controller
         $usuario->save();
 
         return redirect()->route('usuarios.index')
-        ->with('success','Usuario actualizado');
+            ->with('success', 'Usuario actualizado');
     }
-
 
     /* =========================
         ELIMINAR USUARIO
@@ -133,12 +128,19 @@ class UsuarioController extends Controller
     {
         $usuario = Usuario::findOrFail($id);
 
+        $computadoras = Computadora::where('id_usuario_asignado', $usuario->id)->get();
+
+        foreach ($computadoras as $computadora) {
+            $computadora->id_usuario_asignado = null;
+            $computadora->estado = 'Inactivo';
+            $computadora->save();
+        }
+
         $usuario->delete();
 
         return redirect()->route('usuarios.index')
-        ->with('success','Usuario eliminado');
+            ->with('success', 'Usuario eliminado');
     }
-
 
     /* =========================
         ASIGNAR EQUIPO
@@ -152,18 +154,13 @@ class UsuarioController extends Controller
 
         $computadora = Computadora::findOrFail($request->computadora_id);
 
-        /* ASIGNAR USUARIO */
         $computadora->id_usuario_asignado = $id;
-
-        /* ACTIVAR EQUIPO */
-        $computadora->estado = "Activo";
-
+        $computadora->estado = 'Activo';
         $computadora->save();
 
         return redirect()->back()
-        ->with('success','Equipo asignado correctamente');
+            ->with('success', 'Equipo asignado correctamente');
     }
-
 
     /* =========================
         QUITAR EQUIPO ASIGNADO
@@ -171,24 +168,17 @@ class UsuarioController extends Controller
 
     public function quitarEquipo($usuarioId, $computadoraId)
     {
-
         $computadora = Computadora::findOrFail($computadoraId);
 
-        /* verificar que pertenece a ese usuario */
-        if($computadora->id_usuario_asignado != $usuarioId){
+        if ($computadora->id_usuario_asignado != $usuarioId) {
             return redirect()->back();
         }
 
-        /* quitar asignación */
         $computadora->id_usuario_asignado = null;
-
-        /* cambiar estado */
-        $computadora->estado = "Inactivo";
-
+        $computadora->estado = 'Inactivo';
         $computadora->save();
 
         return redirect()->back()
-        ->with('success','Asignación eliminada correctamente');
+            ->with('success', 'Asignación eliminada correctamente');
     }
-
 }

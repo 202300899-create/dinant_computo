@@ -3,24 +3,41 @@
 @section('content')
 
 <style>
-    .titulo{
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+
+.contenedor-form{
+    max-width: 800px;
+    margin: 30px auto;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 18px 45px rgba(15, 76, 129, 0.08);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
 }
-.ficha{
-    max-width:800px;
-    margin:auto;
-    background:white;
-    padding:25px;
-    border-radius:16px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.05);
+
+.encabezado{
+    background: linear-gradient(135deg, #0f4c81, #1d6fa5);
+    color: white;
+    padding: 24px 28px;
+}
+
+.encabezado h1{
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.cuerpo{
+    padding: 26px 28px 30px;
 }
 
 .item{
-    margin-bottom:10px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.item strong{
+    color: #111827;
 }
 
 .badge{
@@ -29,59 +46,100 @@
     padding:5px 10px;
     border-radius:20px;
     font-size:12px;
+    font-weight:600;
+}
+
+.mensaje-ok{
+    background:#ecfdf5;
+    border:1px solid #a7f3d0;
+    color:#065f46;
+    padding:12px 14px;
+    border-radius:12px;
+    margin-top:15px;
+    font-size:13px;
 }
 
 .acciones{
-    margin-top:20px;
-    display:flex;
-    gap:10px;
+    margin-top: 25px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
 }
 
-.btn-editar{
-    background:#0f4c81;
-    color:white;
-    border:none;
-    padding:10px 18px;
-    border-radius:10px;
-    cursor:pointer;
+/* 🔥 BOTONES IGUAL QUE EDIT */
+.btn{
+    padding: 11px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-guardar{
+    background: #0f4c81;
+    color: white;
+}
+
+.btn-guardar:hover{
+    background: #0c3d68;
+    transform: translateY(-1px);
 }
 
 .btn-volver{
-    background:#6b7280;
-    color:white;
-    border:none;
-    padding:10px 18px;
-    border-radius:10px;
-    cursor:pointer;
+    background: #6b7280;
+    color: white;
 }
+
+.btn-volver:hover{
+    background: #4b5563;
+}
+
 </style>
 
-<div class="ficha">
+<div class="contenedor-form">
 
-    <h1 class="titulo">Mantenimiento #{{ $mantenimiento->id }}</h1>
-
-    <div class="item"><strong>Equipo:</strong> {{ $mantenimiento->computadora->nombre_equipo ?? 'Sin equipo' }}</div>
-    <div class="item"><strong>Tipo:</strong> {{ $mantenimiento->tipo }}</div>
-    <div class="item"><strong>Fecha programada:</strong> {{ $mantenimiento->fecha_programada }}</div>
-
-    <div class="item">
-        <strong>Estado:</strong> 
-        <span class="badge">{{ $mantenimiento->estado }}</span>
+    <div class="encabezado">
+        <h1>Mantenimiento #{{ $mantenimiento->id }}</h1>
     </div>
 
-    <div class="item"><strong>Fecha realizada:</strong> {{ $mantenimiento->fecha_realizada ?? 'Pendiente' }}</div>
-    <div class="item"><strong>Observaciones:</strong> {{ $mantenimiento->descripcion ?? 'Sin observaciones' }}</div>
+    <div class="cuerpo">
 
-    <div class="acciones">
-        <button class="btn-editar"
-            onclick="window.location.href='/mantenimientos/{{ $mantenimiento->id }}/edit'">
-           Cerrar ticket
-        </button>
+        <div class="item"><strong>Equipo:</strong> {{ $mantenimiento->computadora->nombre_equipo ?? 'Sin equipo' }}</div>
+        <div class="item"><strong>Tipo:</strong> {{ $mantenimiento->tipo }}</div>
+        <div class="item"><strong>Fecha programada:</strong> {{ $mantenimiento->fecha_programada }}</div>
 
-        <button class="btn-volver"
-            onclick="window.location.href='/mantenimientos'">
-            Volver
-        </button>
+        <div class="item">
+            <strong>Estado:</strong> 
+            <span class="badge">{{ $mantenimiento->estado }}</span>
+        </div>
+
+        <div class="item"><strong>Fecha realizada:</strong> {{ $mantenimiento->fecha_realizada ?? 'Pendiente' }}</div>
+        <div class="item"><strong>Observaciones:</strong> {{ $mantenimiento->descripcion ?? 'Sin observaciones' }}</div>
+
+        @if($mantenimiento->estado == 'Completado')
+            <div class="mensaje-ok">
+                Este ticket ya fue completado.
+            </div>
+        @endif
+
+        <div class="acciones">
+
+            @if($mantenimiento->estado != 'Completado')
+                <button class="btn btn-guardar"
+                    onclick="window.location.href='/mantenimientos/{{ $mantenimiento->id }}/edit'">
+                    Cerrar ticket
+                </button>
+            @endif
+
+            <button class="btn btn-volver"
+                onclick="window.history.back()">
+                Volver
+            </button>
+
+        </div>
+
     </div>
 
 </div>

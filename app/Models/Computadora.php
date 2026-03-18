@@ -24,18 +24,15 @@ class Computadora extends Model
         'estado',
         'imagen',
         'id_ubicacion',
-        'id_usuario_asignado'
+        'id_usuario_asignado' // 🔥 importante
     ];
-
-    /* =========================
-        RELACIONES
-    ========================= */
 
     public function ubicacion()
     {
         return $this->belongsTo(Ubicacion::class, 'id_ubicacion');
     }
 
+    // 🔥 relación de UN SOLO usuario
     public function usuarioAsignado()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario_asignado');

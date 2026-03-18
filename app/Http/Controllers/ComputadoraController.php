@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class ComputadoraController extends Controller
 {
-
     /* =========================
         LISTADO + BUSCADOR
     ========================= */
@@ -17,18 +16,17 @@ class ComputadoraController extends Controller
     {
         $buscar = $request->buscar;
 
-        $computadoras = Computadora::with(['ubicacion','usuarioAsignado'])
-            ->when($buscar, function($query) use ($buscar){
-                $query->where('nombre_equipo','like',"%$buscar%")
-                      ->orWhere('marca','like',"%$buscar%")
-                      ->orWhere('modelo','like',"%$buscar%")
-                      ->orWhere('numero_serie','like',"%$buscar%");
+        $computadoras = Computadora::with(['ubicacion', 'usuarioAsignado'])
+            ->when($buscar, function ($query) use ($buscar) {
+                $query->where('nombre_equipo', 'like', "%$buscar%")
+                    ->orWhere('marca', 'like', "%$buscar%")
+                    ->orWhere('modelo', 'like', "%$buscar%")
+                    ->orWhere('numero_serie', 'like', "%$buscar%");
             })
             ->get();
 
-        return view('computadoras.index', compact('computadoras','buscar'));
+        return view('computadoras.index', compact('computadoras', 'buscar'));
     }
-
 
     /* =========================
         FORM CREAR
@@ -38,9 +36,8 @@ class ComputadoraController extends Controller
         $usuarios = Usuario::all();
         $ubicaciones = Ubicacion::all();
 
-        return view('computadoras.create', compact('usuarios','ubicaciones'));
+        return view('computadoras.create', compact('usuarios', 'ubicaciones'));
     }
-
 
     /* =========================
         GUARDAR
@@ -59,7 +56,7 @@ class ComputadoraController extends Controller
             'sistema_operativo' => 'required',
             'fecha_compra' => 'required|date',
             'fecha_fin_garantia' => 'required|date',
-            'vida_util' => 'required|numeric',   // CORREGIDO
+            'vida_util' => 'required|numeric',
             'estado' => 'required',
         ]);
 
@@ -67,18 +64,17 @@ class ComputadoraController extends Controller
 
         /* SUBIDA IMAGEN */
         if ($request->hasFile('imagen')) {
-
-            $nombre = time().'_'.$request->imagen->getClientOriginalName();
+            $nombre = time() . '_' . $request->imagen->getClientOriginalName();
             $request->imagen->move(public_path('images'), $nombre);
 
-            $datos['imagen'] = 'images/'.$nombre;
+            $datos['imagen'] = 'images/' . $nombre;
         }
 
-        Computadora::create($datos);
+        $computadora = Computadora::create($datos);
 
-        return redirect()->route('computadoras.index');
+        return redirect()->route('computadoras.show', $computadora->id)
+            ->with('success', 'Computadora creada correctamente');
     }
-
 
     /* =========================
         FORM EDITAR
@@ -89,64 +85,63 @@ class ComputadoraController extends Controller
         $usuarios = Usuario::all();
         $ubicaciones = Ubicacion::all();
 
-        return view('computadoras.edit', compact('computadora','usuarios','ubicaciones'));
+        return view('computadoras.edit', compact('computadora', 'usuarios', 'ubicaciones'));
     }
-
 
     /* =========================
         ACTUALIZAR
     ========================= */
     public function update(Request $request, $id)
-{
-    $computadora = Computadora::findOrFail($id);
+    {
+        $computadora = Computadora::findOrFail($id);
 
-    $request->validate([
-        'nombre_equipo' => 'required',
-        'tipo' => 'required',
-        'marca' => 'required',
-        'modelo' => 'required',
-        'numero_serie' => 'required',
-        'procesador' => 'required',
-        'ram' => 'required',
-        'almacenamiento' => 'required',
-        'sistema_operativo' => 'required',
-        'fecha_compra' => 'required|date',
-        'vida_util' => 'required|numeric',
-        'estado' => 'required',
-    ]);
+        $request->validate([
+            'nombre_equipo' => 'required',
+            'tipo' => 'required',
+            'marca' => 'required',
+            'modelo' => 'required',
+            'numero_serie' => 'required',
+            'procesador' => 'required',
+            'ram' => 'required',
+            'almacenamiento' => 'required',
+            'sistema_operativo' => 'required',
+            'fecha_compra' => 'required|date',
+            'vida_util' => 'required|numeric',
+            'estado' => 'required',
+        ]);
 
-    $computadora->nombre_equipo = $request->nombre_equipo;
-    $computadora->tipo = $request->tipo;
-    $computadora->marca = $request->marca;
-    $computadora->modelo = $request->modelo;
-    $computadora->numero_serie = $request->numero_serie;
-    $computadora->procesador = $request->procesador;
-    $computadora->ram = $request->ram;
-    $computadora->almacenamiento = $request->almacenamiento;
-    $computadora->sistema_operativo = $request->sistema_operativo;
-    $computadora->fecha_compra = $request->fecha_compra;
-    $computadora->vida_util = $request->vida_util;
-    $computadora->estado = $request->estado;
-    $computadora->id_usuario_asignado = $request->id_usuario_asignado;
-    $computadora->id_ubicacion = $request->id_ubicacion;
+        $computadora->nombre_equipo = $request->nombre_equipo;
+        $computadora->tipo = $request->tipo;
+        $computadora->marca = $request->marca;
+        $computadora->modelo = $request->modelo;
+        $computadora->numero_serie = $request->numero_serie;
+        $computadora->procesador = $request->procesador;
+        $computadora->ram = $request->ram;
+        $computadora->almacenamiento = $request->almacenamiento;
+        $computadora->sistema_operativo = $request->sistema_operativo;
+        $computadora->fecha_compra = $request->fecha_compra;
+        $computadora->fecha_fin_garantia = $request->fecha_fin_garantia;
+        $computadora->vida_util = $request->vida_util;
+        $computadora->estado = $request->estado;
+        $computadora->id_usuario_asignado = $request->id_usuario_asignado;
+        $computadora->id_ubicacion = $request->id_ubicacion;
 
-    if ($request->hasFile('imagen')) {
+        if ($request->hasFile('imagen')) {
+            if ($computadora->imagen && file_exists(public_path($computadora->imagen))) {
+                unlink(public_path($computadora->imagen));
+            }
 
-        if ($computadora->imagen && file_exists(public_path($computadora->imagen))) {
-            unlink(public_path($computadora->imagen));
+            $nombre = time() . '_' . $request->imagen->getClientOriginalName();
+            $request->imagen->move(public_path('images'), $nombre);
+
+            $computadora->imagen = 'images/' . $nombre;
         }
 
-        $nombre = time().'_'.$request->imagen->getClientOriginalName();
-        $request->imagen->move(public_path('images'), $nombre);
+        $computadora->save();
 
-        $computadora->imagen = 'images/'.$nombre;
+        return redirect()->route('computadoras.show', $computadora->id)
+            ->with('success', 'Computadora actualizada correctamente');
     }
-
-    $computadora->save();
-
-    return redirect()->route('computadoras.index');
-}
-
 
     /* =========================
         ELIMINAR
@@ -155,26 +150,30 @@ class ComputadoraController extends Controller
     {
         $computadora = Computadora::findOrFail($id);
 
-        // eliminar mantenimientos relacionados
-        $computadora->mantenimientos()->delete();
+        if ($computadora->imagen && file_exists(public_path($computadora->imagen))) {
+            unlink(public_path($computadora->imagen));
+        }
 
-        // eliminar computadora
+        $computadora->mantenimientos()->delete();
         $computadora->delete();
 
-        return redirect()->route('computadoras.index');
+        return redirect()->route('computadoras.index')
+            ->with('success', 'Computadora eliminada correctamente');
     }
-
 
     /* =========================
         FICHA TECNICA
     ========================= */
     public function show($id)
-{
-    $computadora = Computadora::with(['mantenimientos' => function($query){
-        $query->orderBy('fecha_programada','desc');
-    }])->findOrFail($id);
+    {
+        $computadora = Computadora::with([
+            'ubicacion',
+            'usuarioAsignado',
+            'mantenimientos' => function ($query) {
+                $query->orderBy('fecha_programada', 'desc');
+            }
+        ])->findOrFail($id);
 
-    return view('computadoras.show', compact('computadora'));
-}
-
+        return view('computadoras.show', compact('computadora'));
+    }
 }

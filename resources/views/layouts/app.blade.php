@@ -201,7 +201,7 @@ margin-left:15px;
 /* ================= CONTENIDO ================= */
 
 .contenido{
-margin-top:90px;
+margin-top:50px;
 padding:30px;
 }
 

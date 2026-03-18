@@ -17,44 +17,26 @@ margin-bottom:15px;
 /* ================= ALERTA SISTEMA ================= */
 
 .alerta-sistema{
-
 position:fixed;
-
 top:70px;
-
 left:50%;
-
 transform:translateX(-50%) translateY(-30px);
-
 background:#fff4e5;
 color:#8a5300;
-
 padding:12px 22px;
-
 border-radius:10px;
-
 box-shadow:0 8px 20px rgba(0,0,0,0.15);
-
 font-size:14px;
-
 border-left:4px solid #f59e0b;
-
 opacity:0;
-
 pointer-events:none;
-
 transition:all .35s ease;
-
 z-index:200;
-
 }
 
 .alerta-sistema.mostrar{
-
 opacity:1;
-
 transform:translateX(-50%) translateY(0);
-
 }
 
 /* ================= MODAL ================= */
@@ -93,21 +75,56 @@ gap:10px;
 justify-content:center;
 }
 
-.btn-cancelar{
-background:#e5e7eb;
+.btn-cancelar,
+.btn-confirmar{
 border:none;
 padding:8px 14px;
 border-radius:8px;
 cursor:pointer;
+font-weight:600;
+font-size:14px;
+position:relative;
+overflow:hidden;
+transition:all 0.25s ease;
+box-shadow:0 6px 14px rgba(0,0,0,0.10);
+}
+
+.btn-cancelar{
+background:#e5e7eb;
+color:#374151;
 }
 
 .btn-confirmar{
 background:#e55353;
 color:white;
-border:none;
-padding:8px 14px;
-border-radius:8px;
-cursor:pointer;
+}
+
+.btn-cancelar:hover,
+.btn-confirmar:hover{
+transform:translateY(-2px) scale(1.02);
+box-shadow:0 12px 22px rgba(0,0,0,0.16);
+}
+
+.btn-cancelar:active,
+.btn-confirmar:active{
+transform:scale(0.97);
+}
+
+.btn-cancelar::before,
+.btn-confirmar::before{
+content:"";
+position:absolute;
+top:0;
+left:-120%;
+width:120%;
+height:100%;
+background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+transition:left 0.6s ease;
+}
+
+.btn-cancelar:hover::before,
+.btn-confirmar:hover::before{
+left:120%;
 }
 
 /* ================= INVENTARIO ================= */
@@ -146,6 +163,37 @@ border:none;
 padding:10px 16px;
 border-radius:10px;
 cursor:pointer;
+font-weight:600;
+font-size:14px;
+position:relative;
+overflow:hidden;
+transition:all 0.25s ease;
+box-shadow:0 6px 14px rgba(15,76,129,0.12);
+}
+
+.btn-buscar:hover{
+transform:translateY(-2px) scale(1.02);
+box-shadow:0 12px 22px rgba(15,76,129,0.20);
+background:#0c3d68;
+}
+
+.btn-buscar:active{
+transform:scale(0.97);
+}
+
+.btn-buscar::before{
+content:"";
+position:absolute;
+top:0;
+left:-120%;
+width:120%;
+height:100%;
+background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+transition:left 0.6s ease;
+}
+
+.btn-buscar:hover::before{
+left:120%;
 }
 
 .inventario-layout{
@@ -218,31 +266,68 @@ gap:10px;
 min-width:130px;
 }
 
-.btn-primary{
-background:#0f4c81;
-color:white;
+/* ================= BOTONES LATERALES ANIMADOS ================= */
+
+.btn-primary,
+.btn-secondary,
+.btn-danger{
 border:none;
 padding:10px 16px;
 border-radius:10px;
 cursor:pointer;
+font-weight:600;
+font-size:14px;
+position:relative;
+overflow:hidden;
+transition:all 0.25s ease;
+box-shadow:0 6px 14px rgba(0,0,0,0.10);
+}
+
+.btn-primary{
+background:#0f4c81;
+color:white;
 }
 
 .btn-secondary{
 background:#2c7be5;
 color:white;
-border:none;
-padding:10px 16px;
-border-radius:10px;
-cursor:pointer;
 }
 
 .btn-danger{
 background:#e55353;
 color:white;
-border:none;
-padding:10px 16px;
-border-radius:10px;
-cursor:pointer;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover{
+transform:translateY(-2px) scale(1.02);
+box-shadow:0 12px 22px rgba(0,0,0,0.16);
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.btn-danger:active{
+transform:scale(0.97);
+}
+
+.btn-primary::before,
+.btn-secondary::before,
+.btn-danger::before{
+content:"";
+position:absolute;
+top:0;
+left:-120%;
+width:120%;
+height:100%;
+background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+transition:left 0.6s ease;
+}
+
+.btn-primary:hover::before,
+.btn-secondary:hover::before,
+.btn-danger:hover::before{
+left:120%;
 }
 
 .usuario-nombre{
@@ -250,7 +335,6 @@ font-weight:600;
 }
 
 </style>
-
 
 <div class="inventario-container">
 
@@ -273,7 +357,6 @@ Buscar
 </button>
 
 </form>
-
 
 <div class="inventario-layout">
 
@@ -332,7 +415,6 @@ Buscar
 
 </div>
 
-
 <div class="acciones-lado">
 
 <button class="btn-primary" onclick="window.location.href='/usuarios/create'">
@@ -353,11 +435,9 @@ Eliminar
 
 </div>
 
-
 <div id="alertaSistema" class="alerta-sistema">
 ⚠️ Selecciona un usuario primero
 </div>
-
 
 <div id="modalEliminar" class="modal-bg">
 
@@ -383,12 +463,10 @@ Eliminar
 
 </div>
 
-
 <form id="formEliminar" method="POST" style="display:none;">
 @csrf
 @method('DELETE')
 </form>
-
 
 <script>
 

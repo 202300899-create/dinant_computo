@@ -4,7 +4,7 @@
 
 <div class="pagina">
 
-<h2>Calendario de mantenimientos</h2>
+<h1 class="titulo-seccion">Calendario de mantenimientos</h1>
 
 <form method="GET" action="{{ route('calendario.index') }}" class="filtro">
 
@@ -43,7 +43,6 @@ $primerDia = $fecha->copy()->startOfMonth()->dayOfWeekIso;
 
 <div class="contenedor">
 
-    <!-- CALENDARIO -->
     <div class="calendario">
         <table>
             <thead>
@@ -87,7 +86,6 @@ $primerDia = $fecha->copy()->startOfMonth()->dayOfWeekIso;
         </table>
     </div>
 
-    <!-- PANEL -->
     <div class="panel">
         <h3>Mantenimientos</h3>
 
@@ -123,6 +121,14 @@ $primerDia = $fecha->copy()->startOfMonth()->dayOfWeekIso;
 
 .pagina{ padding:10px; }
 
+.titulo-seccion{
+    font-size:22px;
+    font-weight:600;
+    color:#1f2937;
+    margin-bottom:15px;
+}
+
+/* FILTRO */
 .filtro{
     display:flex;
     gap:10px;
@@ -130,22 +136,70 @@ $primerDia = $fecha->copy()->startOfMonth()->dayOfWeekIso;
     margin-bottom:12px;
 }
 
-.btn-filtrar{
-    background:#0f4c81;
-    color:white;
+.filtro select{
+    padding:7px 10px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    font-size:13px;
+}
+
+.btn-filtrar,
+.btn-limpiar{
     border:none;
     padding:7px 14px;
     border-radius:8px;
+    font-size:13px;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    position:relative;
+    overflow:hidden;
+    transition:all 0.25s ease;
+    box-shadow:0 6px 14px rgba(0,0,0,0.10);
+}
+
+.btn-filtrar{
+    background:#0f4c81;
+    color:white;
 }
 
 .btn-limpiar{
     background:#e55353;
     color:white;
-    padding:7px 14px;
-    border-radius:8px;
-    text-decoration:none;
 }
 
+.btn-filtrar:hover,
+.btn-limpiar:hover{
+    transform:translateY(-2px) scale(1.02);
+    box-shadow:0 12px 22px rgba(0,0,0,0.16);
+}
+
+.btn-filtrar:active,
+.btn-limpiar:active{
+    transform:scale(0.97);
+}
+
+.btn-filtrar::before,
+.btn-limpiar::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-120%;
+    width:120%;
+    height:100%;
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+    transition:left 0.6s ease;
+}
+
+.btn-filtrar:hover::before,
+.btn-limpiar:hover::before{
+    left:120%;
+}
+
+/* CONTENEDOR */
 .contenedor{
     display:flex;
     gap:15px;
@@ -198,7 +252,6 @@ $primerDia = $fecha->copy()->startOfMonth()->dayOfWeekIso;
     text-decoration:none;
 }
 
-/* COLORES CORREGIDOS */
 .evento.preventivo{ background:#2563eb; color:white; }
 .evento.correctivo{ background:#facc15; color:#000; }
 
@@ -236,7 +289,6 @@ $primerDia = $fecha->copy()->startOfMonth()->dayOfWeekIso;
 
 .estado-pendiente{ background:#ef4444; }
 
-/* COLORES CORREGIDOS */
 .badge.preventivo{ background:#2563eb; color:white; }
 .badge.correctivo{ background:#facc15; color:#000; }
 

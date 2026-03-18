@@ -44,18 +44,8 @@ border:1px solid #ddd;
 font-size:13px;
 }
 
-.btn-filtrar{
-background:#0f4c81;
-color:white;
-border:none;
-padding:7px 14px;
-border-radius:8px;
-cursor:pointer;
-}
-
+.btn-filtrar,
 .btn-limpiar{
-background:#e55353;
-color:white;
 border:none;
 padding:7px 14px;
 border-radius:8px;
@@ -65,10 +55,49 @@ text-decoration:none;
 display:inline-flex;
 align-items:center;
 justify-content:center;
+font-weight:600;
+position:relative;
+overflow:hidden;
+transition:all 0.25s ease;
+box-shadow:0 6px 14px rgba(0,0,0,0.10);
 }
 
+.btn-filtrar{
+background:#0f4c81;
+color:white;
+}
+
+.btn-limpiar{
+background:#e55353;
+color:white;
+}
+
+.btn-filtrar:hover,
 .btn-limpiar:hover{
-background:#c93f3f;
+transform:translateY(-2px) scale(1.02);
+box-shadow:0 12px 22px rgba(0,0,0,0.16);
+}
+
+.btn-filtrar:active,
+.btn-limpiar:active{
+transform:scale(0.97);
+}
+
+.btn-filtrar::before,
+.btn-limpiar::before{
+content:"";
+position:absolute;
+top:0;
+left:-120%;
+width:120%;
+height:100%;
+background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+transition:left 0.6s ease;
+}
+
+.btn-filtrar:hover::before,
+.btn-limpiar:hover::before{
+left:120%;
 }
 
 /* ================= CONTENEDOR ================= */
@@ -100,34 +129,67 @@ gap:10px;
 
 /* ================= BOTONES ================= */
 
-.btn-primary{
-background:#0f4c81;
-color:white;
+.btn-primary,
+.btn-secondary,
+.btn-danger{
 border:none;
 padding:10px;
 border-radius:10px;
 cursor:pointer;
 width:100%;
+font-weight:600;
+font-size:14px;
+position:relative;
+overflow:hidden;
+transition:all 0.25s ease;
+box-shadow:0 6px 14px rgba(0,0,0,0.10);
+}
+
+.btn-primary{
+background:#0f4c81;
+color:white;
 }
 
 .btn-secondary{
 background:#2c7be5;
 color:white;
-border:none;
-padding:10px;
-border-radius:10px;
-cursor:pointer;
-width:100%;
 }
 
 .btn-danger{
 background:#e55353;
 color:white;
-border:none;
-padding:10px;
-border-radius:10px;
-cursor:pointer;
-width:100%;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover{
+transform:translateY(-2px) scale(1.02);
+box-shadow:0 12px 22px rgba(0,0,0,0.16);
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.btn-danger:active{
+transform:scale(0.97);
+}
+
+.btn-primary::before,
+.btn-secondary::before,
+.btn-danger::before{
+content:"";
+position:absolute;
+top:0;
+left:-120%;
+width:120%;
+height:100%;
+background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+transition:left 0.6s ease;
+}
+
+.btn-primary:hover::before,
+.btn-secondary:hover::before,
+.btn-danger:hover::before{
+left:120%;
 }
 
 /* ================= TABLA ================= */
@@ -186,8 +248,6 @@ font-weight:600;
 display:inline-block;
 }
 
-/* ESTADO */
-
 .badge-pendiente{
 background:#ef4444;
 color:white;
@@ -197,8 +257,6 @@ color:white;
 background:#22c55e;
 color:white;
 }
-
-/* TIPO (COLORES CORREGIDOS) */
 
 .badge-preventivo{
 background:#3b82f6;
@@ -246,26 +304,59 @@ gap:10px;
 justify-content:center;
 }
 
-.btn-cancelar{
-background:#e5e7eb;
+.btn-cancelar,
+.btn-confirmar{
 border:none;
 padding:8px 14px;
 border-radius:8px;
 cursor:pointer;
+font-weight:600;
+font-size:14px;
+position:relative;
+overflow:hidden;
+transition:all 0.25s ease;
+box-shadow:0 6px 14px rgba(0,0,0,0.10);
+}
+
+.btn-cancelar{
+background:#e5e7eb;
+color:#374151;
 }
 
 .btn-confirmar{
 background:#e55353;
 color:white;
-border:none;
-padding:8px 14px;
-border-radius:8px;
-cursor:pointer;
+}
+
+.btn-cancelar:hover,
+.btn-confirmar:hover{
+transform:translateY(-2px) scale(1.02);
+box-shadow:0 12px 22px rgba(0,0,0,0.16);
+}
+
+.btn-cancelar:active,
+.btn-confirmar:active{
+transform:scale(0.97);
+}
+
+.btn-cancelar::before,
+.btn-confirmar::before{
+content:"";
+position:absolute;
+top:0;
+left:-120%;
+width:120%;
+height:100%;
+background:linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+transition:left 0.6s ease;
+}
+
+.btn-cancelar:hover::before,
+.btn-confirmar:hover::before{
+left:120%;
 }
 
 </style>
-
-
 
 <div class="mant-container">
 
@@ -292,7 +383,6 @@ cursor:pointer;
 <a href="/mantenimientos" class="btn-limpiar">Limpiar</a>
 
 </form>
-
 
 <div class="mant-grid">
 
@@ -349,7 +439,6 @@ cursor:pointer;
 
 </div>
 
-
 <div class="mant-actions">
 
 <button class="btn-primary" onclick="window.location.href='/mantenimientos/create'">
@@ -370,11 +459,9 @@ Eliminar
 
 </div>
 
-
 <div id="alertaSistema" class="alerta-sistema">
 ⚠️ Selecciona un mantenimiento primero
 </div>
-
 
 <div id="modalEliminar" class="modal-bg">
 
@@ -396,7 +483,6 @@ Eliminar
 
 </div>
 
-
 <script>
 
 let idEliminar = null;
@@ -408,9 +494,7 @@ let alerta = document.getElementById("alertaSistema");
 alerta.classList.add("mostrar");
 
 setTimeout(function(){
-
 alerta.classList.remove("mostrar");
-
 },2500);
 
 }
@@ -431,10 +515,8 @@ function editarSeleccion(){
 let seleccionado = document.querySelector('input[name="filaSeleccionada"]:checked');
 
 if(!seleccionado){
-
 mostrarAlerta();
 return;
-
 }
 
 window.location.href = "/mantenimientos/" + seleccionado.value;
@@ -446,10 +528,8 @@ function eliminarSeleccion(){
 let seleccionado = document.querySelector('input[name="filaSeleccionada"]:checked');
 
 if(!seleccionado){
-
 mostrarAlerta();
 return;
-
 }
 
 idEliminar = seleccionado.value;
@@ -459,9 +539,7 @@ document.getElementById("modalEliminar").classList.add("active");
 }
 
 function cerrarModal(){
-
 document.getElementById("modalEliminar").classList.remove("active");
-
 }
 
 function confirmarEliminar(){
