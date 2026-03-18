@@ -7,143 +7,235 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.6.2/countUp.min.js"></script>
+
 <style>
 
 /* ================= BASE ================= */
+
 body{
-    margin:0;
-    font-family:'Inter',sans-serif;
-    background:#f5f6f8;
-    color:#1d1d1f;
+margin:0;
+font-family:'Inter',sans-serif;
+background:#f5f6f8;
+color:#1d1d1f;
 }
 
 /* ================= HEADER ================= */
+
 .header{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:80px;
-    background:#0f4c81;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    box-shadow:0 3px 10px rgba(0,0,0,0.15);
-    z-index:9999;
-    
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:80px;
+background:#0f4c81;
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow:0 3px 10px rgba(0,0,0,0.15);
+z-index:9999;
 }
 
-/* CONTENEDOR INTERNO */
+/* CONTENEDOR */
+
 .header-inner{
-    width:100%;
-    max-width:1400px;
-    display:flex;
-    align-items:center;
-    padding:0 10px;
+width:100%;
+max-width:1400px;
+display:flex;
+align-items:center;
+padding:0 10px;
 }
 
 /* ================= LOGO ================= */
+
 .logo{
-    flex:0 0 260px;
-    display:flex;
-    align-items:center;
+flex:0 0 260px;
+display:flex;
+align-items:center;
 }
 
 .logo img{
-    height:auto;
-    width:330px;
-    margin-left:-50px;
-    margin-top:10px;
-    transition:0.3s;
+height:auto;
+width:330px;
+margin-left:-50px;
+margin-top:10px;
+transition:0.3s;
 }
 
 .logo img:hover{
-    transform:scale(1.03);
+transform:scale(1.03);
 }
 
 /* ================= MENU ================= */
+
 .menu{
-    flex:1;
-    display:flex;
-    justify-content:center;
-    gap:40px;
+flex:1;
+display:flex;
+justify-content:center;
+gap:40px;
 }
 
 .menu a{
-    text-decoration:none;
-    color:#e3eef9;
-    font-size:15px;
-    font-weight:500;
-    position:relative;
+text-decoration:none;
+color:#e3eef9;
+font-size:15px;
+font-weight:500;
+position:relative;
 }
 
-/* Hover animado */
 .menu a::after{
-    content:"";
-    position:absolute;
-    left:0;
-    bottom:-6px;
-    width:0;
-    height:2px;
-    background:white;
-    transition:0.3s;
+content:"";
+position:absolute;
+left:0;
+bottom:-6px;
+width:0;
+height:2px;
+background:white;
+transition:0.3s;
 }
 
 .menu a:hover::after{
-    width:100%;
+width:100%;
 }
 
-/* ACTIVO PERSISTENTE */
 .menu a.activo::after{
-    width:100%;
+width:100%;
+}
+
+/* ================= PERFIL ================= */
+
+.perfil-container{
+position:relative;
+margin-left:auto;
+}
+
+.perfil-btn{
+width:42px;
+height:42px;
+border-radius:50%;
+overflow:hidden;
+cursor:pointer;
+border:2px solid white;
+transition:0.2s;
+}
+
+.perfil-btn:hover{
+transform:scale(1.08);
+}
+
+.perfil-btn img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+/* ===== DROPDOWN PERFIL ===== */
+
+.dropdown-perfil{
+position:absolute;
+top:55px;
+right:0;
+background:white;
+border-radius:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.25);
+width:220px;
+overflow:hidden;
+}
+
+/* HEADER PERFIL */
+
+.perfil-header{
+display:flex;
+align-items:center;
+gap:12px;
+padding:15px;
+border-bottom:1px solid #eee;
+}
+
+.perfil-header img{
+width:40px;
+height:40px;
+border-radius:50%;
+object-fit:cover;
+}
+
+.nombre{
+font-size:14px;
+font-weight:600;
+}
+
+.rol{
+font-size:12px;
+color:#666;
+}
+
+/* OPCIONES */
+
+.perfil-opciones a{
+display:block;
+padding:12px 15px;
+text-decoration:none;
+font-size:14px;
+color:#333;
+transition:0.2s;
+}
+
+.perfil-opciones a:hover{
+background:#f5f6f8;
+}
+
+.logout{
+color:#e74c3c;
 }
 
 /* ================= HAMBURGUESA ================= */
+
 .hamburguesa{
-    display:none;
-    font-size:26px;
-    color:white;
-    cursor:pointer;
+display:none;
+font-size:26px;
+color:white;
+cursor:pointer;
+margin-left:15px;
 }
 
 /* ================= CONTENIDO ================= */
+
 .contenido{
-    margin-top:50px;
-    padding:30px;
+margin-top:90px;
+padding:30px;
 }
 
 /* ================= RESPONSIVE ================= */
+
 @media(max-width:900px){
 
-    .menu{
-        position:fixed;
-        top:80px;
-        left:0;
-        width:100%;
-        background:#0f4c81;
-        flex-direction:column;
-        align-items:center;
-        gap:20px;
-        padding:25px 0;
-        transform:translateY(-120%);
-        opacity:0;
-    }
+.menu{
+position:fixed;
+top:80px;
+left:0;
+width:100%;
+background:#0f4c81;
+flex-direction:column;
+align-items:center;
+gap:20px;
+padding:25px 0;
+transform:translateY(-120%);
+opacity:0;
+transition:0.3s;
+}
 
-    .menu.active{
-        transform:translateY(0);
-        opacity:1;
-    }
+.menu.active{
+transform:translateY(0);
+opacity:1;
+}
 
-    .hamburguesa{
-        display:block;
-    }
+.hamburguesa{
+display:block;
+}
 
-    .logo{
-        flex:1;
-    }
+.logo{
+flex:1;
+}
 
 }
 
@@ -155,13 +247,16 @@ body{
 <div class="header">
 <div class="header-inner">
 
-<!-- LOGO CLICKEABLE -->
+<!-- LOGO -->
+
 <div class="logo">
+<a href="{{ route('dashboard') }}">
 <img src="{{ asset('images/logo.png') }}" alt="Dinant">
 </a>
 </div>
 
 <!-- MENU -->
+
 <div class="menu" id="menu">
 
 <a href="{{ route('dashboard') }}" class="{{ request()->is('dashboard') ? 'activo' : '' }}">
@@ -186,7 +281,54 @@ Usuarios
 
 </div>
 
+<!-- PERFIL -->
+
+<div class="perfil-container" x-data="{open:false}">
+
+<div class="perfil-btn" @click="open = !open">
+<img src="{{ asset('images/user.jpeg') }}" alt="Usuario">
+</div>
+
+<div class="dropdown-perfil" x-show="open" @click.outside="open=false" x-transition>
+
+<div class="perfil-header">
+
+<img src="{{ asset('images/user.jpeg') }}" alt="Usuario">
+
+<div>
+<div class="nombre">
+{{ session('admin_usuario') ?? 'Administrador' }}
+</div>
+
+<div class="rol">
+Administrador
+</div>
+</div>
+
+</div>
+
+<div class="perfil-opciones">
+
+<a href="#">
+Ver perfil
+</a>
+
+<a href="#">
+ Configuración
+</a>
+
+<a href="{{ route('logout') }}" class="logout">
+ Cerrar sesión
+</a>
+
+</div>
+
+</div>
+
+</div>
+
 <!-- HAMBURGUESA -->
+
 <div class="hamburguesa" onclick="toggleMenu()">☰</div>
 
 </div>
