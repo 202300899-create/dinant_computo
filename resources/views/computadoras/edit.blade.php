@@ -236,6 +236,14 @@ input[type="file"]{
 
     <div class="cuerpo-form">
 
+        @if(session('error'))
+            <div class="errores">
+                <ul>
+                    <li>{{ session('error') }}</li>
+                </ul>
+            </div>
+        @endif
+
         @if ($errors->any())
             <div class="errores">
                 <ul>
@@ -246,7 +254,7 @@ input[type="file"]{
             </div>
         @endif
 
-        <form action="{{ route('computadoras.update', $computadora->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('computadoras.update', $computadora->id) }}" method="POST" enctype="multipart/form-data" id="formComputadora">
             @csrf
             @method('PUT')
 
@@ -255,6 +263,9 @@ input[type="file"]{
                 <div class="campo">
                     <label>Nombre del equipo</label>
                     <input type="text" name="nombre_equipo" value="{{ old('nombre_equipo', $computadora->nombre_equipo) }}" required>
+                    @error('nombre_equipo')
+                        <small style="color:#dc2626; margin-top:6px; font-size:12px; display:block;">{{ $message }}</small>
+                    @enderror
                 </div>
 
                 <div class="campo">
@@ -279,6 +290,9 @@ input[type="file"]{
                 <div class="campo">
                     <label>Número de serie</label>
                     <input type="text" name="numero_serie" value="{{ old('numero_serie', $computadora->numero_serie) }}" required>
+                    @error('numero_serie')
+                        <small style="color:#dc2626; margin-top:6px; font-size:12px; display:block;">{{ $message }}</small>
+                    @enderror
                 </div>
 
                 <div class="campo">
@@ -323,17 +337,44 @@ input[type="file"]{
 
                 <div class="campo">
                     <label>Fecha compra</label>
-                    <input type="date" name="fecha_compra" value="{{ old('fecha_compra', $computadora->fecha_compra) }}" required>
+                    <input
+                        type="date"
+                        name="fecha_compra"
+                        id="fecha_compra"
+                        value="{{ old('fecha_compra', $computadora->fecha_compra) }}"
+                        max="{{ date('Y-m-d') }}"
+                        required
+                    >
+                    @error('fecha_compra')
+                        <small style="color:#dc2626; margin-top:6px; font-size:12px; display:block;">{{ $message }}</small>
+                    @enderror
                 </div>
 
                 <div class="campo">
                     <label>Fin de garantía</label>
-                    <input type="date" name="fecha_fin_garantia" value="{{ old('fecha_fin_garantia', $computadora->fecha_fin_garantia) }}" required>
+                    <input
+                        type="date"
+                        name="fecha_fin_garantia"
+                        id="fecha_fin_garantia"
+                        value="{{ old('fecha_fin_garantia', $computadora->fecha_fin_garantia) }}"
+                        required
+                    >
+                    @error('fecha_fin_garantia')
+                        <small style="color:#dc2626; margin-top:6px; font-size:12px; display:block;">{{ $message }}</small>
+                    @enderror
+                    <small id="errorGarantia" style="color:#dc2626; margin-top:6px; font-size:12px; display:none;"></small>
                 </div>
 
                 <div class="campo">
                     <label>Vida útil (años)</label>
-                    <input type="number" name="vida_util" min="1" value="{{ old('vida_util', $computadora->vida_util) }}" required>
+                    <input
+                        type="number"
+                        name="vida_util"
+                        id="vida_util"
+                        min="1"
+                        value="{{ old('vida_util', $computadora->vida_util) }}"
+                        required
+                    >
                 </div>
 
                 <div class="campo">
@@ -401,5 +442,116 @@ input[type="file"]{
     </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const fechaCompra = document.getElementById('fecha_compra');
+    const fechaGarantia = document.getElementById('fecha_fin_garantia');
+    const vidaUtil = document.getElementById('vida_util');
+    const form = document.getElementById('formComputadora');
+    const errorGarantia = document.getElementById('errorGarantia');
+
+    function limpiarErrorGarantia() {
+        errorGarantia.style.display = 'none';
+        errorGarantia.textContent = '';
+        fechaGarantia.style.borderColor = '#d1d5db';
+        fechaCompra.style.borderColor = '#d1d5db';
+    }
+
+    function mostrarErrorGarantia(mensaje) {
+        errorGarantia.style.display = 'block';
+        errorGarantia.textContent = mensaje;
+        fechaGarantia.style.borderColor = '#dc2626';
+    }
+
+    function mostrarErrorCompra(mensaje) {
+        errorGarantia.style.display = 'block';
+        errorGarantia.textContent = mensaje;
+        fechaCompra.style.borderColor = '#dc2626';
+    }
+
+    function calcularVidaUtil() {
+        if (fechaCompra.value && fechaGarantia.value) {
+            const compra = new Date(fechaCompra.value + 'T00:00:00');
+            const garantia = new Date(fechaGarantia.value + 'T00:00:00');
+
+            if (!isNaN(compra) && !isNaN(garantia) && garantia >= compra) {
+                let años = garantia.getFullYear() - compra.getFullYear();
+
+                const mesGarantia = garantia.getMonth();
+                const mesCompra = compra.getMonth();
+
+                if (
+                    mesGarantia < mesCompra ||
+                    (mesGarantia === mesCompra && garantia.getDate() < compra.getDate())
+                ) {
+                    años--;
+                }
+
+                if (años < 1) {
+                    años = 1;
+                }
+
+                if (!vidaUtil.value) {
+                    vidaUtil.value = años;
+                }
+            }
+        }
+    }
+
+    function validarFormulario() {
+        limpiarErrorGarantia();
+
+        if (!fechaCompra.value || !fechaGarantia.value) {
+            return true;
+        }
+
+        const compra = new Date(fechaCompra.value + 'T00:00:00');
+        const garantia = new Date(fechaGarantia.value + 'T00:00:00');
+
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        if (compra > hoy) {
+            mostrarErrorCompra('La fecha de compra no puede ser mayor a la fecha actual.');
+            fechaCompra.focus();
+            return false;
+        }
+
+        if (garantia < compra) {
+            mostrarErrorGarantia('La fecha de garantía no puede ser menor que la fecha de compra.');
+            fechaGarantia.focus();
+            return false;
+        }
+
+        const minimo = new Date(compra);
+        minimo.setFullYear(minimo.getFullYear() + 1);
+
+        if (garantia < minimo) {
+            mostrarErrorGarantia('La fecha de garantía debe ser de al menos 1 año después de la fecha de compra.');
+            fechaGarantia.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    fechaCompra.addEventListener('change', function () {
+        calcularVidaUtil();
+        validarFormulario();
+    });
+
+    fechaGarantia.addEventListener('change', function () {
+        calcularVidaUtil();
+        validarFormulario();
+    });
+
+    form.addEventListener('submit', function (e) {
+        if (!validarFormulario()) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
 
 @endsection

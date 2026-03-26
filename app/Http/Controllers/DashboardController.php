@@ -10,37 +10,37 @@ class DashboardController extends Controller
 {
     public function index()
     {
-
         /* =========================
         COMPUTADORAS
         ========================= */
 
         $totalComputadoras = Computadora::count();
 
-        $desktopActivas = Computadora::where('tipo','Desktop')
-            ->where('estado','Activo')
+        // 🔵 Desktop (incluye Server)
+        $desktopActivas = Computadora::whereIn('tipo', ['Desktop', 'Server'])
+            ->where('estado', 'Activo')
             ->count();
 
-        $laptopActivas = Computadora::where('tipo','Laptop')
-            ->where('estado','Activo')
+        $desktopInactivas = Computadora::whereIn('tipo', ['Desktop', 'Server'])
+            ->where('estado', '!=', 'Activo')
             ->count();
 
-        $desktopInactivas = Computadora::where('tipo','Desktop')
-            ->where('estado','Inactivo')
+        // 🟢 Laptop
+        $laptopActivas = Computadora::where('tipo', 'Laptop')
+            ->where('estado', 'Activo')
             ->count();
 
-        $laptopInactivas = Computadora::where('tipo','Laptop')
-            ->where('estado','Inactivo')
+        $laptopInactivas = Computadora::where('tipo', 'Laptop')
+            ->where('estado', '!=', 'Activo')
             ->count();
 
 
         /* =========================
-        MANTENIMIENTOS PENDIENTES DEL MES
+        MANTENIMIENTOS DEL MES
         ========================= */
 
         $mesActual = Carbon::now()->month;
         $anioActual = Carbon::now()->year;
-
 
         $mantenimientosPreventivos = Mantenimiento::where('tipo','Preventivo')
             ->where('estado','Pendiente')
@@ -48,13 +48,11 @@ class DashboardController extends Controller
             ->whereYear('fecha_programada',$anioActual)
             ->count();
 
-
         $mantenimientosCorrectivos = Mantenimiento::where('tipo','Correctivo')
             ->where('estado','Pendiente')
             ->whereMonth('fecha_programada',$mesActual)
             ->whereYear('fecha_programada',$anioActual)
             ->count();
-
 
 
         /* =========================
