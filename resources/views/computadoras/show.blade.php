@@ -188,131 +188,112 @@ background:#f9fbfd;
 
 <div class="ficha">
 
-<h1 class="titulo">{{ $computadora->nombre_equipo }}</h1>
+    <h1 class="titulo">{{ $computadora->nombre_equipo }}</h1>
 
-<div class="ficha-grid">
+    <div class="ficha-grid">
 
-<!-- DATOS -->
+        <!-- DATOS -->
+        <div>
 
-<div>
+            <div class="item">
+                <strong>Tipo:</strong> {{ $computadora->tipo }}
+            </div>
 
-<div class="item">
-<strong>Tipo:</strong> {{ $computadora->tipo }}
+            <div class="item">
+                <strong>Marca:</strong> {{ $computadora->marca }}
+            </div>
+
+            <div class="item">
+                <strong>Modelo:</strong> {{ $computadora->modelo }}
+            </div>
+
+            <div class="item">
+                <strong>Procesador:</strong> {{ $computadora->procesador }}
+            </div>
+
+            <div class="item">
+                <strong>RAM:</strong> {{ $computadora->ram }}
+            </div>
+
+            <div class="item">
+                <strong>Almacenamiento:</strong> {{ $computadora->almacenamiento }}
+            </div>
+
+            <div class="item">
+                <strong>Sistema operativo:</strong> {{ $computadora->sistema_operativo }}
+            </div>
+
+            <div class="item">
+                <strong>Usuario:</strong>
+                {{ $computadora->usuarioAsignado->nombre ?? 'Sin asignar' }}
+            </div>
+
+            <div class="item">
+                <strong>Ubicación:</strong>
+                {{ $computadora->ubicacion->area_empresa ?? 'Sin área asignada' }}
+            </div>
+
+            <div class="item">
+                <strong>Fecha compra:</strong>
+                {{ $computadora->fecha_compra }}
+            </div>
+
+            <div class="item">
+                <strong>Fin de Garantía:</strong>
+                @if($computadora->fecha_compra && $computadora->vida_util)
+                    {{ \Carbon\Carbon::parse($computadora->fecha_compra)->addYears($computadora->vida_util)->format('Y-m-d') }}
+                @else
+                    No registrada
+                @endif
+            </div>
+
+            <div class="item">
+                <strong>Vida útil:</strong>
+                {{ $computadora->vida_util }} años
+            </div>
+
+            <div class="item">
+                <strong>Estado:</strong>
+                <span class="badge">
+                    {{ $computadora->estado }}
+                </span>
+            </div>
+
+            <div class="acciones">
+
+                <button class="btn-editar"
+                    onclick="window.location.href='/computadoras/{{ $computadora->id }}/edit'">
+                    Editar
+                </button>
+
+                <button class="btn-volver"
+                    onclick="window.location.href='/computadoras'">
+                    Volver
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- IMAGEN -->
+        <div>
+
+            <div class="imagen-box">
+
+                @if($computadora->imagen)
+                    <img src="{{ asset($computadora->imagen) }}">
+                @else
+                    <span style="color:#9ca3af;font-size:13px;">
+                        Sin imagen
+                    </span>
+                @endif
+
+            </div>
+
+        </div>
+
+    </div>
 </div>
-
-<div class="item">
-<strong>Marca:</strong> {{ $computadora->marca }}
-</div>
-
-<div class="item">
-<strong>Modelo:</strong> {{ $computadora->modelo }}
-</div>
-
-<div class="item">
-<strong>Procesador:</strong> {{ $computadora->procesador }}
-</div>
-
-<div class="item">
-<strong>RAM:</strong> {{ $computadora->ram }}
-</div>
-
-<div class="item">
-<strong>Almacenamiento:</strong> {{ $computadora->almacenamiento }}
-</div>
-
-<div class="item">
-<strong>Sistema operativo:</strong> {{ $computadora->sistema_operativo }}
-</div>
-
-<div class="item">
-<strong>Usuario:</strong>
-{{ $computadora->usuarioAsignado->nombre ?? 'Sin asignar' }}
-</div>
-
-<div class="item">
-<strong>Ubicación:</strong>
-
-@if($computadora->usuarioAsignado && $computadora->usuarioAsignado->ubicacion)
-{{ $computadora->usuarioAsignado->ubicacion->area_empresa }}
-@elseif($computadora->ubicacion)
-{{ $computadora->ubicacion->area_empresa }}
-@else
-Sin área asignada
-@endif
-
-</div>
-
-<div class="item">
-<strong>Fecha compra:</strong>
-{{ $computadora->fecha_compra }}
-</div>
-
-<div class="item">
-<strong>Fin de Garantía:</strong>
-
-@if($computadora->fecha_compra && $computadora->vida_util)
-{{ \Carbon\Carbon::parse($computadora->fecha_compra)->addYears($computadora->vida_util)->format('Y-m-d') }}
-@else
-No registrada
-@endif
-
-</div>
-
-<div class="item">
-<strong>Vida útil:</strong>
-{{ $computadora->vida_util }} años
-</div>
-
-<div class="item">
-<strong>Estado:</strong>
-<span class="badge">
-{{ $computadora->estado }}
-</span>
-</div>
-
-<div class="acciones">
-
-<button class="btn-editar"
-onclick="window.location.href='/computadoras/{{ $computadora->id }}/edit'">
-Editar
-</button>
-
-<button class="btn-volver"
-onclick="window.location.href='/computadoras'">
-Volver
-</button>
-
-</div>
-
-</div>
-
-
-<!-- IMAGEN -->
-
-<div>
-
-<div class="imagen-box">
-
-@if($computadora->imagen)
-
-<img src="{{ asset($computadora->imagen) }}">
-
-@else
-
-<span style="color:#9ca3af;font-size:13px;">
-Sin imagen
-</span>
-
-@endif
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 
 
 <!-- ================= HISTORIAL MANTENIMIENTOS ================= -->

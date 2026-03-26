@@ -29,11 +29,25 @@
 .encabezado-form p{
     margin: 8px 0 0;
     font-size: 14px;
-    opacity: 0.9;
+    opacity: 0.92;
 }
 
 .cuerpo-form{
     padding: 30px 32px 34px;
+}
+
+.errores{
+    margin-bottom: 22px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    border-radius: 14px;
+    padding: 16px 18px;
+}
+
+.errores ul{
+    margin: 0;
+    padding-left: 18px;
 }
 
 .grid{
@@ -216,12 +230,23 @@ input[type="file"]{
 <div class="contenedor-form">
 
     <div class="encabezado-form">
-        <h1>Propiedades del Equipo</h1>
-        <p>Edita la información general, asignación y datos técnicos del equipo.</p>
+        <h1>Editar Computadora</h1>
+        <p>Actualiza la información técnica, estado, ubicación y usuario asignado del equipo.</p>
     </div>
 
     <div class="cuerpo-form">
-        <form action="/computadoras/{{ $computadora->id }}" method="POST" enctype="multipart/form-data">
+
+        @if ($errors->any())
+            <div class="errores">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('computadoras.update', $computadora->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -229,12 +254,13 @@ input[type="file"]{
 
                 <div class="campo">
                     <label>Nombre del equipo</label>
-                    <input type="text" name="nombre_equipo" value="{{ old('nombre_equipo', $computadora->nombre_equipo) }}">
+                    <input type="text" name="nombre_equipo" value="{{ old('nombre_equipo', $computadora->nombre_equipo) }}" required>
                 </div>
 
                 <div class="campo">
                     <label>Tipo</label>
-                    <select name="tipo">
+                    <select name="tipo" required>
+                        <option value="">Seleccione</option>
                         <option value="Desktop" {{ old('tipo', $computadora->tipo) == 'Desktop' ? 'selected' : '' }}>Desktop</option>
                         <option value="Laptop" {{ old('tipo', $computadora->tipo) == 'Laptop' ? 'selected' : '' }}>Laptop</option>
                     </select>
@@ -242,22 +268,23 @@ input[type="file"]{
 
                 <div class="campo">
                     <label>Marca</label>
-                    <input type="text" name="marca" value="{{ old('marca', $computadora->marca) }}">
+                    <input type="text" name="marca" value="{{ old('marca', $computadora->marca) }}" required>
                 </div>
 
                 <div class="campo">
                     <label>Modelo</label>
-                    <input type="text" name="modelo" value="{{ old('modelo', $computadora->modelo) }}">
+                    <input type="text" name="modelo" value="{{ old('modelo', $computadora->modelo) }}" required>
                 </div>
 
                 <div class="campo">
                     <label>Número de serie</label>
-                    <input type="text" name="numero_serie" value="{{ old('numero_serie', $computadora->numero_serie) }}">
+                    <input type="text" name="numero_serie" value="{{ old('numero_serie', $computadora->numero_serie) }}" required>
                 </div>
 
                 <div class="campo">
                     <label>Procesador</label>
-                    <select name="procesador">
+                    <select name="procesador" required>
+                        <option value="">Seleccione</option>
                         <option value="Intel i5" {{ old('procesador', $computadora->procesador) == 'Intel i5' ? 'selected' : '' }}>Intel i5</option>
                         <option value="Intel i7" {{ old('procesador', $computadora->procesador) == 'Intel i7' ? 'selected' : '' }}>Intel i7</option>
                         <option value="Ryzen 5" {{ old('procesador', $computadora->procesador) == 'Ryzen 5' ? 'selected' : '' }}>Ryzen 5</option>
@@ -267,7 +294,8 @@ input[type="file"]{
 
                 <div class="campo">
                     <label>Memoria RAM</label>
-                    <select name="ram">
+                    <select name="ram" required>
+                        <option value="">Seleccione</option>
                         <option value="8 GB" {{ old('ram', $computadora->ram) == '8 GB' ? 'selected' : '' }}>8 GB</option>
                         <option value="16 GB" {{ old('ram', $computadora->ram) == '16 GB' ? 'selected' : '' }}>16 GB</option>
                         <option value="32 GB" {{ old('ram', $computadora->ram) == '32 GB' ? 'selected' : '' }}>32 GB</option>
@@ -276,7 +304,8 @@ input[type="file"]{
 
                 <div class="campo">
                     <label>Almacenamiento</label>
-                    <select name="almacenamiento">
+                    <select name="almacenamiento" required>
+                        <option value="">Seleccione</option>
                         <option value="256 GB SSD" {{ old('almacenamiento', $computadora->almacenamiento) == '256 GB SSD' ? 'selected' : '' }}>256 GB SSD</option>
                         <option value="512 GB SSD" {{ old('almacenamiento', $computadora->almacenamiento) == '512 GB SSD' ? 'selected' : '' }}>512 GB SSD</option>
                         <option value="1 TB SSD" {{ old('almacenamiento', $computadora->almacenamiento) == '1 TB SSD' ? 'selected' : '' }}>1 TB SSD</option>
@@ -285,7 +314,8 @@ input[type="file"]{
 
                 <div class="campo">
                     <label>Sistema operativo</label>
-                    <select name="sistema_operativo">
+                    <select name="sistema_operativo" required>
+                        <option value="">Seleccione</option>
                         <option value="Windows 11 Pro" {{ old('sistema_operativo', $computadora->sistema_operativo) == 'Windows 11 Pro' ? 'selected' : '' }}>Windows 11 Pro</option>
                         <option value="Windows 10 Pro" {{ old('sistema_operativo', $computadora->sistema_operativo) == 'Windows 10 Pro' ? 'selected' : '' }}>Windows 10 Pro</option>
                     </select>
@@ -293,17 +323,23 @@ input[type="file"]{
 
                 <div class="campo">
                     <label>Fecha compra</label>
-                    <input type="date" name="fecha_compra" value="{{ old('fecha_compra', $computadora->fecha_compra) }}">
+                    <input type="date" name="fecha_compra" value="{{ old('fecha_compra', $computadora->fecha_compra) }}" required>
                 </div>
 
                 <div class="campo">
-                    <label>Vida útil</label>
-                    <input type="number" name="vida_util" value="{{ old('vida_util', $computadora->vida_util) }}">
+                    <label>Fin de garantía</label>
+                    <input type="date" name="fecha_fin_garantia" value="{{ old('fecha_fin_garantia', $computadora->fecha_fin_garantia) }}" required>
+                </div>
+
+                <div class="campo">
+                    <label>Vida útil (años)</label>
+                    <input type="number" name="vida_util" min="1" value="{{ old('vida_util', $computadora->vida_util) }}" required>
                 </div>
 
                 <div class="campo">
                     <label>Estado</label>
-                    <select name="estado">
+                    <select name="estado" required>
+                        <option value="">Seleccione</option>
                         <option value="Activo" {{ old('estado', $computadora->estado) == 'Activo' ? 'selected' : '' }}>Activo</option>
                         <option value="En mantenimiento" {{ old('estado', $computadora->estado) == 'En mantenimiento' ? 'selected' : '' }}>En mantenimiento</option>
                         <option value="Dañado" {{ old('estado', $computadora->estado) == 'Dañado' ? 'selected' : '' }}>Dañado</option>
@@ -351,16 +387,17 @@ input[type="file"]{
 
                 <div class="imagen-box" style="margin-top: 18px;">
                     <label>Cambiar imagen</label>
-                    <input type="file" name="imagen" accept=".jpg,.jpeg,.png">
+                    <input type="file" name="imagen">
                 </div>
             </div>
 
             <div class="acciones">
                 <button type="submit" class="btn-guardar">Actualizar</button>
-                <a href="/computadoras" class="btn-volver">Volver</a>
+                <a href="{{ route('computadoras.index') }}" class="btn-volver">Volver</a>
             </div>
 
         </form>
+
     </div>
 
 </div>

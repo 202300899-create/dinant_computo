@@ -14,17 +14,15 @@ class MantenimientoController extends Controller
     {
         $query = Mantenimiento::with('computadora');
 
-        // Filtro por estado
-        if($request->estado){
-            $query->where('estado',$request->estado);
+        if ($request->estado) {
+            $query->where('estado', $request->estado);
         }
 
-        // Filtro por tipo
-        if($request->tipo){
-            $query->where('tipo',$request->tipo);
+        if ($request->tipo) {
+            $query->where('tipo', $request->tipo);
         }
 
-        $mantenimientos = $query->orderBy('fecha_programada','desc')->get();
+        $mantenimientos = $query->orderBy('fecha_programada', 'desc')->get();
 
         return view('mantenimientos.index', compact('mantenimientos'));
     }
@@ -40,36 +38,40 @@ class MantenimientoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_computadora' => 'required',
-            'tipo' => 'required',
+            'id_computadora'   => 'required',
+            'tipo'             => 'required',
             'fecha_programada' => 'required|date'
         ]);
 
         Mantenimiento::create([
-            'id_computadora' => $request->id_computadora,
-            'tipo' => $request->tipo,
-            'descripcion' => $request->descripcion,
+            'id_computadora'   => $request->id_computadora,
+            'tipo'             => $request->tipo,
+            'descripcion'      => $request->descripcion,
             'fecha_programada' => $request->fecha_programada,
-            'estado' => 'Pendiente'
+            'estado'           => 'Pendiente'
         ]);
 
-        return redirect('/mantenimientos')->with('success','Mantenimiento creado');
+        return redirect()->route('mantenimientos.index')
+            ->with('success', 'Mantenimiento creado');
     }
 
     /* ================= SHOW ================= */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $mantenimiento = Mantenimiento::with('computadora')->findOrFail($id);
-        return view('mantenimientos.show', compact('mantenimiento'));
+        $origen = $request->origen;
+
+        return view('mantenimientos.show', compact('mantenimiento', 'origen'));
     }
 
     /* ================= EDIT ================= */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
         $mantenimiento = Mantenimiento::findOrFail($id);
         $computadoras = Computadora::all();
+        $origen = $request->origen;
 
-        return view('mantenimientos.edit', compact('mantenimiento','computadoras'));
+        return view('mantenimientos.edit', compact('mantenimiento', 'computadoras', 'origen'));
     }
 
     /* ================= UPDATE ================= */
@@ -80,26 +82,31 @@ class MantenimientoController extends Controller
         $mantenimiento->estado = $request->estado;
         $mantenimiento->descripcion = $request->descripcion;
 
-        // Si se marca como completado
-        if($request->estado == 'Completado' && !$mantenimiento->fecha_realizada){
-
+        if ($request->estado == 'Completado' && !$mantenimiento->fecha_realizada) {
             $mantenimiento->fecha_realizada = Carbon::now();
 
-            // Crear siguiente mantenimiento preventivo automático
-            if($mantenimiento->tipo == 'Preventivo'){
+            if ($mantenimiento->tipo == 'Preventivo') {
                 Mantenimiento::create([
-                    'id_computadora' => $mantenimiento->id_computadora,
-                    'tipo' => 'Preventivo',
-                    'descripcion' => 'Mantenimiento preventivo generado automáticamente',
+                    'id_computadora'   => $mantenimiento->id_computadora,
+                    'tipo'             => 'Preventivo',
+                    'descripcion'      => 'Mantenimiento preventivo generado automáticamente',
                     'fecha_programada' => Carbon::now()->addMonths(6),
-                    'estado' => 'Pendiente'
+                    'estado'           => 'Pendiente'
                 ]);
             }
         }
 
         $mantenimiento->save();
 
-        return redirect('/mantenimientos/'.$id)->with('success','Actualizado');
+        if ($request->origen === 'calendario') {
+            return redirect()->route('calendario.index')
+                ->with('success', 'Ticket cerrado correctamente');
+        }
+
+        return redirect()->route('mantenimientos.show', [
+            'mantenimiento' => $mantenimiento->id,
+            'origen' => 'mantenimientos'
+        ])->with('success', 'Actualizado');
     }
 
     /* ================= DESTROY ================= */
@@ -108,6 +115,7 @@ class MantenimientoController extends Controller
         $mantenimiento = Mantenimiento::findOrFail($id);
         $mantenimiento->delete();
 
-        return redirect('/mantenimientos')->with('success','Eliminado');
+        return redirect()->route('mantenimientos.index')
+            ->with('success', 'Eliminado');
     }
 }

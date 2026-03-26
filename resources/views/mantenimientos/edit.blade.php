@@ -124,6 +124,15 @@ textarea{
 
     <div class="cuerpo">
 
+        @php
+            $rutaVolver = $origen === 'calendario'
+                ? route('calendario.index')
+                : route('mantenimientos.show', [
+                    'mantenimiento' => $mantenimiento->id,
+                    'origen' => 'mantenimientos'
+                ]);
+        @endphp
+
         {{-- Mensaje si ya está completado --}}
         @if($mantenimiento->estado == 'Completado')
             <div class="mensaje">
@@ -131,15 +140,17 @@ textarea{
             </div>
         @endif
 
-        <form method="POST" action="/mantenimientos/{{ $mantenimiento->id }}">
+        <form method="POST" action="{{ route('mantenimientos.update', $mantenimiento->id) }}">
             @csrf
             @method('PUT')
+
+            <input type="hidden" name="origen" value="{{ $origen }}">
 
             <div class="item">
                 <label>Estado</label>
                 <select name="estado" {{ $mantenimiento->estado == 'Completado' ? 'disabled' : '' }}>
-                    <option value="Pendiente" {{ $mantenimiento->estado=='Pendiente'?'selected':'' }}>Pendiente</option>
-                    <option value="Completado" {{ $mantenimiento->estado=='Completado'?'selected':'' }}>Completado</option>
+                    <option value="Pendiente" {{ $mantenimiento->estado == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                    <option value="Completado" {{ $mantenimiento->estado == 'Completado' ? 'selected' : '' }}>Completado</option>
                 </select>
             </div>
 
@@ -150,13 +161,16 @@ textarea{
 
             <div class="acciones">
 
-                {{-- Solo si NO está completado --}}
                 @if($mantenimiento->estado != 'Completado')
-                    <button type="submit" class="btn btn-guardar">Guardar</button>
+                    <button type="submit" class="btn btn-guardar">
+                        Guardar
+                    </button>
                 @endif
 
-                <button type="button" class="btn btn-volver"
-                    onclick="window.history.back()">
+                <button
+                    type="button"
+                    class="btn btn-volver"
+                    onclick="window.location.href='{{ $rutaVolver }}'">
                     Volver
                 </button>
 

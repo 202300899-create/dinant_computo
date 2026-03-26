@@ -301,16 +301,15 @@ input[type="file"]{
                     <input type="number" name="vida_util" id="vida_util" min="1" value="{{ old('vida_util') }}" required>
                 </div>
 
-                <div class="campo">
-                    <label>Estado</label>
-                    <select name="estado" required>
-                        <option value="">Seleccione</option>
-                        <option value="Activo" {{ old('estado') == 'Activo' ? 'selected' : '' }}>Activo</option>
-                        <option value="En mantenimiento" {{ old('estado') == 'En mantenimiento' ? 'selected' : '' }}>En mantenimiento</option>
-                        <option value="Dañado" {{ old('estado') == 'Dañado' ? 'selected' : '' }}>Dañado</option>
-                        <option value="Inactivo" {{ old('estado') == 'Inactivo' ? 'selected' : '' }}>Inactivo</option>
-                    </select>
-                </div>
+<div class="campo">
+    <label>Estado</label>
+
+    <select disabled>
+        <option selected>Activo</option>
+    </select>
+
+    <input type="hidden" name="estado" value="Activo">
+</div>
 
                 <div class="campo">
                     <label>Usuario asignado</label>

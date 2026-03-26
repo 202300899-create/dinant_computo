@@ -106,17 +106,30 @@
 
     <div class="cuerpo">
 
-        <div class="item"><strong>Equipo:</strong> {{ $mantenimiento->computadora->nombre_equipo ?? 'Sin equipo' }}</div>
-        <div class="item"><strong>Tipo:</strong> {{ $mantenimiento->tipo }}</div>
-        <div class="item"><strong>Fecha programada:</strong> {{ $mantenimiento->fecha_programada }}</div>
+        <div class="item">
+            <strong>Equipo:</strong> {{ $mantenimiento->computadora->nombre_equipo ?? 'Sin equipo' }}
+        </div>
 
         <div class="item">
-            <strong>Estado:</strong> 
+            <strong>Tipo:</strong> {{ $mantenimiento->tipo }}
+        </div>
+
+        <div class="item">
+            <strong>Fecha programada:</strong> {{ $mantenimiento->fecha_programada }}
+        </div>
+
+        <div class="item">
+            <strong>Estado:</strong>
             <span class="badge">{{ $mantenimiento->estado }}</span>
         </div>
 
-        <div class="item"><strong>Fecha realizada:</strong> {{ $mantenimiento->fecha_realizada ?? 'Pendiente' }}</div>
-        <div class="item"><strong>Observaciones:</strong> {{ $mantenimiento->descripcion ?? 'Sin observaciones' }}</div>
+        <div class="item">
+            <strong>Fecha realizada:</strong> {{ $mantenimiento->fecha_realizada ?? 'Pendiente' }}
+        </div>
+
+        <div class="item">
+            <strong>Observaciones:</strong> {{ $mantenimiento->descripcion ?? 'Sin observaciones' }}
+        </div>
 
         @if($mantenimiento->estado == 'Completado')
             <div class="mensaje-ok">
@@ -124,17 +137,28 @@
             </div>
         @endif
 
+        @php
+            $origen = request('origen');
+            $rutaVolver = $origen === 'calendario'
+                ? route('calendario.index')
+                : route('mantenimientos.index');
+        @endphp
+
         <div class="acciones">
 
             @if($mantenimiento->estado != 'Completado')
-                <button class="btn btn-guardar"
-                    onclick="window.location.href='/mantenimientos/{{ $mantenimiento->id }}/edit'">
+                <button
+                    type="button"
+                    class="btn btn-guardar"
+                    onclick="window.location.href='{{ route('mantenimientos.edit', ['mantenimiento' => $mantenimiento->id, 'origen' => $origen]) }}'">
                     Cerrar ticket
                 </button>
             @endif
 
-            <button class="btn btn-volver"
-                onclick="window.history.back()">
+            <button
+                type="button"
+                class="btn btn-volver"
+                onclick="window.location.href='{{ $rutaVolver }}'">
                 Volver
             </button>
 

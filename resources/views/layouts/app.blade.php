@@ -22,6 +22,7 @@ margin:0;
 font-family:'Inter',sans-serif;
 background:#f5f6f8;
 color:#1d1d1f;
+
 }
 
 /* ================= HEADER ================= */
@@ -38,6 +39,7 @@ align-items:center;
 justify-content:center;
 box-shadow:0 3px 10px rgba(0,0,0,0.15);
 z-index:9999;
+
 }
 
 /* CONTENEDOR */
@@ -48,6 +50,7 @@ max-width:1400px;
 display:flex;
 align-items:center;
 padding:0 10px;
+
 }
 
 /* ================= LOGO ================= */
@@ -59,8 +62,8 @@ align-items:center;
 }
 
 .logo img{
-height:240px;
-width:380px;
+height:200px;
+width:300px;
 margin-left:-50px;
 margin-top:10px;
 transition:0.3s;
@@ -85,6 +88,7 @@ color:#e3eef9;
 font-size:15px;
 font-weight:500;
 position:relative;
+
 }
 
 .menu a::after{
@@ -96,6 +100,7 @@ width:0;
 height:2px;
 background:white;
 transition:0.3s;
+
 }
 
 .menu a:hover::after{
@@ -212,7 +217,7 @@ margin-left:15px;
 /* ================= CONTENIDO ================= */
 
 .contenido{
-margin-top:80px;
+margin-top:40px;
 padding:30px;
 }
 
@@ -271,7 +276,7 @@ width:250px;
 
         <!-- LOGO -->
         <div class="logo">
-            <a href="{{ route('dashboard') }}">
+           <!--<a href="{{ route('dashboard') }}"> -->
                 <img src="{{ asset('images/logo.png') }}" alt="Dinant">
             </a>
         </div>
