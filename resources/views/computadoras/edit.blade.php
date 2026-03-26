@@ -351,7 +351,7 @@ input[type="file"]{
 
                 <div class="imagen-box" style="margin-top: 18px;">
                     <label>Cambiar imagen</label>
-                    <input type="file" name="imagen">
+                    <input type="file" name="imagen" accept=".jpg,.jpeg,.png">
                 </div>
             </div>
 

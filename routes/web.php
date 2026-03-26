@@ -14,6 +14,7 @@ use App\Http\Controllers\ComputadoraController;
 use App\Http\Controllers\MantenimientoController;
 use App\Http\Controllers\CalendarioController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ConfiguracionController;
 
 
 /*
@@ -35,7 +36,6 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.procesar');
 
 Route::middleware(['admin.auth'])->group(function () {
 
-
     /*
     |--------------------------------------------------------------------------
     | DASHBOARD
@@ -44,6 +44,25 @@ Route::middleware(['admin.auth'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CONFIGURACIÓN
+    |--------------------------------------------------------------------------
+    */
+
+ Route::get('/configuracion', [ConfiguracionController::class, 'index'])
+    ->name('configuracion.index');
+
+Route::put('/configuracion/perfil', [ConfiguracionController::class, 'actualizarPerfil'])
+    ->name('configuracion.perfil');
+
+Route::put('/configuracion/password', [ConfiguracionController::class, 'actualizarPassword'])
+    ->name('configuracion.password');
+
+Route::post('/configuracion/usuarios', [ConfiguracionController::class, 'guardarNuevoUsuario'])
+    ->name('configuracion.usuarios.store');
 
 
     /*
@@ -114,12 +133,6 @@ Route::middleware(['admin.auth'])->group(function () {
 
     Route::prefix('usuarios')->controller(UsuarioController::class)->group(function () {
 
-        /*
-        ========================
-        CRUD USUARIOS
-        ========================
-        */
-
         Route::get('/', 'index')->name('usuarios.index');
 
         Route::get('/create', 'create')->name('usuarios.create');
@@ -134,22 +147,8 @@ Route::middleware(['admin.auth'])->group(function () {
 
         Route::delete('/{usuario}', 'destroy')->name('usuarios.destroy');
 
-
-        /*
-        ========================
-        ASIGNAR COMPUTADORA
-        ========================
-        */
-
         Route::post('/{usuario}/asignar-equipo', 'asignarEquipo')
             ->name('usuarios.asignarEquipo');
-
-
-        /*
-        ========================
-        QUITAR COMPUTADORA
-        ========================
-        */
 
         Route::put('/{usuario}/quitar-equipo/{computadora}', 'quitarEquipo')
             ->name('usuarios.quitarEquipo');

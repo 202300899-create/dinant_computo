@@ -13,6 +13,10 @@
 
 /* ================= BASE ================= */
 
+[x-cloak]{
+display:none !important;
+}
+
 body{
 margin:0;
 font-family:'Inter',sans-serif;
@@ -55,8 +59,8 @@ align-items:center;
 }
 
 .logo img{
-height:auto;
-width:330px;
+height:240px;
+width:380px;
 margin-left:-50px;
 margin-top:10px;
 transition:0.3s;
@@ -117,6 +121,11 @@ overflow:hidden;
 cursor:pointer;
 border:2px solid white;
 transition:0.2s;
+background:none;
+padding:0;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 
 .perfil-btn:hover{
@@ -138,8 +147,10 @@ right:0;
 background:white;
 border-radius:12px;
 box-shadow:0 10px 30px rgba(0,0,0,0.25);
-width:220px;
+width:275px;
 overflow:hidden;
+z-index:10050;
+transform-origin:top right;
 }
 
 /* HEADER PERFIL */
@@ -201,7 +212,7 @@ margin-left:15px;
 /* ================= CONTENIDO ================= */
 
 .contenido{
-margin-top:50px;
+margin-top:80px;
 padding:30px;
 }
 
@@ -222,6 +233,7 @@ padding:25px 0;
 transform:translateY(-120%);
 opacity:0;
 transition:0.3s;
+z-index:9998;
 }
 
 .menu.active{
@@ -237,113 +249,114 @@ display:block;
 flex:1;
 }
 
+.logo img{
+width:240px;
+margin-left:0;
+margin-top:6px;
+}
+
+.dropdown-perfil{
+right:0;
+width:250px;
+}
 }
 
 </style>
 </head>
 
-<body>
+<body class="{{ session('tema') == 'oscuro' ? 'modo-oscuro' : '' }}">
 
 <div class="header">
-<div class="header-inner">
+    <div class="header-inner">
 
-<!-- LOGO -->
+        <!-- LOGO -->
+        <div class="logo">
+            <a href="{{ route('dashboard') }}">
+                <img src="{{ asset('images/logo.png') }}" alt="Dinant">
+            </a>
+        </div>
 
-<div class="logo">
-<a href="{{ route('dashboard') }}">
-<img src="{{ asset('images/logo.png') }}" alt="Dinant">
-</a>
-</div>
+        <!-- MENU -->
+        <div class="menu" id="menu">
+            <a href="{{ route('dashboard') }}" class="{{ request()->is('dashboard') ? 'activo' : '' }}">
+                Dashboard
+            </a>
 
-<!-- MENU -->
+            <a href="/computadoras" class="{{ request()->is('computadoras*') ? 'activo' : '' }}">
+                Inventario
+            </a>
 
-<div class="menu" id="menu">
+            <a href="/mantenimientos" class="{{ request()->is('mantenimientos*') ? 'activo' : '' }}">
+                Mantenimientos
+            </a>
 
-<a href="{{ route('dashboard') }}" class="{{ request()->is('dashboard') ? 'activo' : '' }}">
-Dashboard
-</a>
+            <a href="/calendario" class="{{ request()->is('calendario*') ? 'activo' : '' }}">
+                Calendario
+            </a>
 
-<a href="/computadoras" class="{{ request()->is('computadoras*') ? 'activo' : '' }}">
-Inventario
-</a>
+            <a href="/usuarios" class="{{ request()->is('usuarios*') ? 'activo' : '' }}">
+                Usuarios
+            </a>
+        </div>
 
-<a href="/mantenimientos" class="{{ request()->is('mantenimientos*') ? 'activo' : '' }}">
-Mantenimientos
-</a>
+        <!-- PERFIL -->
+        <div class="perfil-container" x-data="{ open: false }">
+            <button type="button" class="perfil-btn" @click.stop="open = !open">
+               <img src="{{ session('admin_foto') ? asset(session('admin_foto')) : asset('images/user.jpeg') }}" alt="Usuario">
+            </button>
 
-<a href="/calendario" class="{{ request()->is('calendario*') ? 'activo' : '' }}">
-Calendario
-</a>
+            <div
+                class="dropdown-perfil"
+                x-cloak
+                x-show="open"
+                @click.outside="open = false"
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+            >
+                <div class="perfil-header">
+                    <img src="{{ session('admin_foto') ? asset(session('admin_foto')) : asset('images/user.jpeg') }}" alt="Usuario">
 
-<a href="/usuarios" class="{{ request()->is('usuarios*') ? 'activo' : '' }}">
-Usuarios
-</a>
+                    <div>
+                        <div class="nombre">
+                            {{ session('admin_usuario') ?? 'Administrador' }}
+                        </div>
 
-</div>
+                        <div class="rol">
+                            Administrador
+                        </div>
+                    </div>
+                </div>
 
-<!-- PERFIL -->
+                <div class="perfil-opciones">
+                    <a href="{{ route('configuracion.index') }}">
+                        Configuración
+                    </a>
 
-<div class="perfil-container" x-data="{open:false}">
+                    <a href="{{ route('logout') }}" class="logout">
+                        Cerrar sesión
+                    </a>
+                </div>
+            </div>
+        </div>
 
-<div class="perfil-btn" @click="open = !open">
-<img src="{{ asset('images/user.jpeg') }}" alt="Usuario">
-</div>
+        <!-- HAMBURGUESA -->
+        <div class="hamburguesa" onclick="toggleMenu()">☰</div>
 
-<div class="dropdown-perfil" x-show="open" @click.outside="open=false" x-transition>
-
-<div class="perfil-header">
-
-<img src="{{ asset('images/user.jpeg') }}" alt="Usuario">
-
-<div>
-<div class="nombre">
-{{ session('admin_usuario') ?? 'Administrador' }}
-</div>
-
-<div class="rol">
-Administrador
-</div>
-</div>
-
-</div>
-
-<div class="perfil-opciones">
-
-<a href="#">
-Ver perfil
-</a>
-
-<a href="#">
- Configuración
-</a>
-
-<a href="{{ route('logout') }}" class="logout">
- Cerrar sesión
-</a>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- HAMBURGUESA -->
-
-<div class="hamburguesa" onclick="toggleMenu()">☰</div>
-
-</div>
+    </div>
 </div>
 
 <div class="contenido">
-@yield('content')
+    @yield('content')
 </div>
 
 <script>
-
 function toggleMenu(){
-document.getElementById("menu").classList.toggle("active");
+    document.getElementById("menu").classList.toggle("active");
 }
-
 </script>
 
 </body>

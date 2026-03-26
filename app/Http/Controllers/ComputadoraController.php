@@ -42,39 +42,45 @@ class ComputadoraController extends Controller
     /* =========================
         GUARDAR
     ========================= */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nombre_equipo' => 'required',
-            'tipo' => 'required',
-            'marca' => 'required',
-            'modelo' => 'required',
-            'numero_serie' => 'required',
-            'procesador' => 'required',
-            'ram' => 'required',
-            'almacenamiento' => 'required',
-            'sistema_operativo' => 'required',
-            'fecha_compra' => 'required|date',
-            'fecha_fin_garantia' => 'required|date',
-            'vida_util' => 'required|numeric',
-            'estado' => 'required',
-        ]);
+ public function store(Request $request)
+{
+    $request->validate([
+        'nombre_equipo' => 'required',
+        'tipo' => 'required',
+        'marca' => 'required',
+        'modelo' => 'required',
+        'numero_serie' => 'required',
+        'procesador' => 'required',
+        'ram' => 'required',
+        'almacenamiento' => 'required',
+        'sistema_operativo' => 'required',
+        'fecha_compra' => 'required|date',
+        'fecha_fin_garantia' => 'required|date',
+        'vida_util' => 'required|numeric',
+        'estado' => 'required',
 
-        $datos = $request->all();
+       
+        'imagen' => 'nullable|image|mimes:jpg,jpeg,png'
+    ], [
+        'imagen.image' => 'El archivo debe ser una imagen.',
+        'imagen.mimes' => 'Solo se permiten archivos JPG, JPEG o PNG.'
+    ]);
 
-        /* SUBIDA IMAGEN */
-        if ($request->hasFile('imagen')) {
-            $nombre = time() . '_' . $request->imagen->getClientOriginalName();
-            $request->imagen->move(public_path('images'), $nombre);
+    $datos = $request->all();
 
-            $datos['imagen'] = 'images/' . $nombre;
-        }
+    /* SUBIDA IMAGEN */
+    if ($request->hasFile('imagen')) {
+        $nombre = time() . '_' . $request->file('imagen')->getClientOriginalName();
+        $request->file('imagen')->move(public_path('images'), $nombre);
 
-        $computadora = Computadora::create($datos);
-
-        return redirect()->route('computadoras.show', $computadora->id)
-            ->with('success', 'Computadora creada correctamente');
+        $datos['imagen'] = 'images/' . $nombre;
     }
+
+    $computadora = Computadora::create($datos);
+
+    return redirect()->route('computadoras.show', $computadora->id)
+        ->with('success', 'Computadora creada correctamente');
+}
 
     /* =========================
         FORM EDITAR

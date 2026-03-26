@@ -27,6 +27,8 @@ color:#0f4c81;
 padding:5px 10px;
 border-radius:20px;
 font-size:12px;
+font-weight:600;
+display:inline-block;
 }
 
 .acciones{
@@ -34,42 +36,59 @@ margin-top:20px;
 display:flex;
 gap:10px;
 flex-wrap:wrap;
+justify-content:flex-start;
+}
+
+/* ================= BOTONES ESTILO SHOW MANTENIMIENTOS ================= */
+
+.btn{
+padding:11px 18px;
+border-radius:12px;
+font-size:14px;
+font-weight:600;
+border:none;
+cursor:pointer;
+transition:all 0.2s ease;
 }
 
 .btn-editar{
 background:#0f4c81;
 color:white;
-border:none;
-padding:10px 18px;
-border-radius:10px;
-cursor:pointer;
+}
+
+.btn-editar:hover{
+background:#0c3d68;
+transform:translateY(-1px);
 }
 
 .btn-volver{
 background:#6b7280;
 color:white;
-border:none;
-padding:10px 18px;
-border-radius:10px;
-cursor:pointer;
+}
+
+.btn-volver:hover{
+background:#4b5563;
+transform:translateY(-1px);
 }
 
 .btn-asignar{
 background:#2c7be5;
 color:white;
-border:none;
-padding:10px 18px;
-border-radius:10px;
-cursor:pointer;
+}
+
+.btn-asignar:hover{
+background:#1f68c7;
+transform:translateY(-1px);
 }
 
 .btn-eliminar{
 background:#e55353;
 color:white;
-border:none;
-padding:10px 18px;
-border-radius:10px;
-cursor:pointer;
+}
+
+.btn-eliminar:hover{
+background:#d64545;
+transform:translateY(-1px);
 }
 
 /* ================= TABLA ================= */
@@ -157,29 +176,48 @@ gap:10px;
 justify-content:center;
 }
 
+/* botones del modal */
 .btn-cancelar{
 background:#e5e7eb;
+color:#374151;
 border:none;
-padding:8px 14px;
-border-radius:8px;
+padding:11px 18px;
+border-radius:12px;
 cursor:pointer;
+font-size:14px;
+font-weight:600;
+transition:all 0.2s ease;
+}
+
+.btn-cancelar:hover{
+background:#d1d5db;
+transform:translateY(-1px);
 }
 
 .btn-confirmar{
 background:#e55353;
 color:white;
 border:none;
-padding:8px 14px;
-border-radius:8px;
+padding:11px 18px;
+border-radius:12px;
 cursor:pointer;
+font-size:14px;
+font-weight:600;
+transition:all 0.2s ease;
+}
+
+.btn-confirmar:hover{
+background:#d64545;
+transform:translateY(-1px);
 }
 
 /* ================= BUSCADOR ================= */
 
 .buscador-equipos{
-padding:8px;
-border-radius:8px;
+padding:10px 12px;
+border-radius:10px;
 border:1px solid #ddd;
+font-size:14px;
 }
 
 /* ================= TABLA MODAL ================= */
@@ -220,26 +258,16 @@ position:fixed;
 top:70px;
 left:50%;
 transform:translateX(-50%) translateY(-30px);
-
 background:#fff4e5;
 color:#8a5300;
-
 padding:12px 22px;
-
 border-radius:10px;
-
 box-shadow:0 8px 20px rgba(0,0,0,0.15);
-
 font-size:14px;
-
 border-left:4px solid #f59e0b;
-
 opacity:0;
-
 pointer-events:none;
-
 transition:all .35s ease;
-
 z-index:200;
 }
 
@@ -247,12 +275,13 @@ z-index:200;
 opacity:1;
 transform:translateX(-50%) translateY(0);
 }
+
 .titulo{
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+font-size:20px;
+font-weight:bold;
+margin-bottom:20px;
+letter-spacing:1px;
+text-transform:uppercase;
 }
 
 </style>
@@ -260,7 +289,6 @@ transform:translateX(-50%) translateY(0);
 <div id="alertaSistema" class="alerta-sistema">
 ⚠️ Selecciona una computadora primero
 </div>
-
 
 <!-- ================= FICHA USUARIO ================= -->
 
@@ -279,12 +307,12 @@ transform:translateX(-50%) translateY(0);
 
 <div class="acciones">
 
-<button class="btn-editar"
+<button class="btn btn-editar"
 onclick="window.location.href='/usuarios/{{ $usuario->id }}/edit'">
 Editar
 </button>
 
-<button class="btn-volver"
+<button class="btn btn-volver"
 onclick="window.location.href='/usuarios'">
 Volver
 </button>
@@ -292,8 +320,6 @@ Volver
 </div>
 
 </div>
-
-
 
 <!-- ================= EQUIPOS ================= -->
 
@@ -352,22 +378,19 @@ Volver
 
 </table>
 
-
 <div class="acciones">
 
-<button class="btn-asignar" onclick="abrirAsignar()">
+<button class="btn btn-asignar" onclick="abrirAsignar()">
 Asignar equipo
 </button>
 
-<button class="btn-eliminar" onclick="abrirEliminar()">
+<button class="btn btn-eliminar" onclick="abrirEliminar()">
 Eliminar asignación
 </button>
 
 </div>
 
 </div>
-
-
 
 <!-- ================= MODAL ASIGNAR ================= -->
 
@@ -431,7 +454,6 @@ onclick="event.stopPropagation()">
 
 </div>
 
-
 <form method="POST" action="/usuarios/{{ $usuario->id }}/asignar-equipo">
 
 @csrf
@@ -440,11 +462,11 @@ onclick="event.stopPropagation()">
 
 <div class="acciones">
 
-<button type="button" class="btn-volver" onclick="cerrarAsignar()">
+<button type="button" class="btn btn-volver" onclick="cerrarAsignar()">
 Volver
 </button>
 
-<button type="submit" class="btn-asignar">
+<button type="submit" class="btn btn-asignar">
 Asignar
 </button>
 
@@ -455,8 +477,6 @@ Asignar
 </div>
 
 </div>
-
-
 
 <!-- ================= MODAL ELIMINAR ================= -->
 
@@ -484,31 +504,23 @@ Eliminar
 
 </div>
 
-
-
 <form id="formEliminarAsignacion" method="POST" style="display:none;">
 @csrf
 @method('PUT')
 </form>
-
-
 
 <script>
 
 /* ================= ALERTA ================= */
 
 function mostrarAlerta(){
-
 let alerta = document.getElementById("alertaSistema");
-
 alerta.classList.add("mostrar");
 
 setTimeout(function(){
 alerta.classList.remove("mostrar");
 },2500);
-
 }
-
 
 /* ================= MODAL ASIGNAR ================= */
 
@@ -520,102 +532,72 @@ function cerrarAsignar(){
 document.getElementById("modalAsignar").classList.remove("active");
 }
 
-
 /* ================= SELECCION EQUIPO MODAL ================= */
 
 function seleccionarEquipo(fila){
-
 document.querySelectorAll("#tablaEquipos tbody tr")
 .forEach(f => f.classList.remove("fila-activa"));
 
 fila.classList.add("fila-activa");
 
 let radio = fila.querySelector("input");
-
 radio.checked = true;
 
 document.getElementById("computadoraSeleccionada").value = radio.value;
-
 }
-
 
 /* ================= BUSCAR EQUIPOS ================= */
 
 function filtrarEquipos(){
-
 let input = document.getElementById("buscarEquipo").value.toLowerCase();
-
 let filas = document.querySelectorAll("#tablaEquipos tbody tr");
 
 filas.forEach(function(fila){
-
 let texto = fila.innerText.toLowerCase();
-
 fila.style.display = texto.includes(input) ? "" : "none";
-
 });
-
 }
-
 
 /* ================= SELECCION PC ================= */
 
 function seleccionarPC(fila){
-
 document.querySelectorAll(".tabla tbody tr")
 .forEach(f => f.classList.remove("fila-activa"));
 
 fila.classList.add("fila-activa");
-
 fila.querySelector("input").checked = true;
-
 }
-
 
 /* ================= ELIMINAR ================= */
 
 function abrirEliminar(){
-
 let seleccionado = document.querySelector('input[name="pcSeleccionada"]:checked');
 
 if(!seleccionado){
-
 mostrarAlerta();
-
 return;
-
 }
 
 document.getElementById("modalEliminar").classList.add("active");
-
 }
-
 
 function cerrarEliminar(){
 document.getElementById("modalEliminar").classList.remove("active");
 }
 
-
 function confirmarEliminar(){
-
 let seleccionado = document.querySelector('input[name="pcSeleccionada"]:checked');
 
 if(!seleccionado){
-
 mostrarAlerta();
-
 return;
-
 }
 
 let pcID = seleccionado.value;
-
 let form = document.getElementById("formEliminarAsignacion");
 
 form.action="/usuarios/{{ $usuario->id }}/quitar-equipo/" + pcID;
-
 form.submit();
-
 }
 
 </script>
