@@ -21,7 +21,25 @@ class ConfiguracionController extends Controller
 
         $request->validate([
             'usuario' => 'required|string|max:255|unique:administradores,usuario,' . $admin->id,
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048'
+            'foto' => [
+                'nullable',
+                'file',
+                'image',
+                'mimes:jpeg,jpg,png',
+                'mimetypes:image/jpeg,image/png',
+                'max:2048'
+            ]
+        ], [
+            'usuario.required' => 'Debes ingresar el nombre de usuario.',
+            'usuario.string' => 'El nombre de usuario no es válido.',
+            'usuario.max' => 'El nombre de usuario no puede superar los 255 caracteres.',
+            'usuario.unique' => 'Ese nombre de usuario ya está en uso.',
+
+            'foto.file' => 'El archivo seleccionado no es válido.',
+            'foto.image' => 'Solo se permite subir una imagen.',
+            'foto.mimes' => 'Solo se permiten archivos JPG, JPEG o PNG.',
+            'foto.mimetypes' => 'El archivo no corresponde a una imagen válida.',
+            'foto.max' => 'La imagen no puede superar los 2 MB.'
         ]);
 
         $admin->usuario = $request->usuario;
@@ -31,8 +49,13 @@ class ConfiguracionController extends Controller
                 unlink(public_path($admin->foto));
             }
 
-            $nombreFoto = time() . '_' . $request->file('foto')->getClientOriginalName();
-            $request->file('foto')->move(public_path('images/perfiles'), $nombreFoto);
+            $archivo = $request->file('foto');
+            $extension = $archivo->getClientOriginalExtension();
+            $nombreBase = pathinfo($archivo->getClientOriginalName(), PATHINFO_FILENAME);
+            $nombreLimpio = preg_replace('/[^A-Za-z0-9_\-]/', '_', $nombreBase);
+            $nombreFoto = time() . '_' . $nombreLimpio . '.' . $extension;
+
+            $archivo->move(public_path('images/perfiles'), $nombreFoto);
             $admin->foto = 'images/perfiles/' . $nombreFoto;
         }
 
@@ -55,6 +78,11 @@ class ConfiguracionController extends Controller
         $request->validate([
             'password_actual' => 'required',
             'password_nueva' => 'required|min:6|confirmed'
+        ], [
+            'password_actual.required' => 'Debes escribir la contraseña actual.',
+            'password_nueva.required' => 'Debes escribir la nueva contraseña.',
+            'password_nueva.min' => 'La nueva contraseña debe tener al menos 6 caracteres.',
+            'password_nueva.confirmed' => 'La confirmación de la nueva contraseña no coincide.'
         ]);
 
         if (!Hash::check($request->password_actual, $admin->password)) {
@@ -74,6 +102,14 @@ class ConfiguracionController extends Controller
         $request->validate([
             'nuevo_usuario' => 'required|string|max:255|unique:administradores,usuario',
             'nuevo_password' => 'required|min:6|confirmed'
+        ], [
+            'nuevo_usuario.required' => 'Debes ingresar el nombre del nuevo usuario.',
+            'nuevo_usuario.string' => 'El nombre del usuario no es válido.',
+            'nuevo_usuario.max' => 'El nombre del usuario no puede superar los 255 caracteres.',
+            'nuevo_usuario.unique' => 'Ese usuario ya existe.',
+            'nuevo_password.required' => 'Debes ingresar la contraseña del nuevo usuario.',
+            'nuevo_password.min' => 'La contraseña debe tener al menos 6 caracteres.',
+            'nuevo_password.confirmed' => 'La confirmación de la contraseña no coincide.'
         ]);
 
         Administrador::create([

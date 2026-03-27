@@ -35,6 +35,7 @@ transform:translateX(-50%) translateY(0);
 display:flex;
 gap:10px;
 margin-bottom:15px;
+flex-wrap:wrap;
 }
 
 .filtros select{
@@ -258,6 +259,11 @@ background:#22c55e;
 color:white;
 }
 
+.badge-en{
+background:#f59e0b;
+color:white;
+}
+
 .badge-preventivo{
 background:#3b82f6;
 color:white;
@@ -370,6 +376,7 @@ left:120%;
 <option value="">Estado</option>
 <option value="Pendiente" {{ request('estado')=='Pendiente'?'selected':'' }}>Pendiente</option>
 <option value="Completado" {{ request('estado')=='Completado'?'selected':'' }}>Completado</option>
+<option value="En proceso" {{ request('estado')=='En proceso'?'selected':'' }}>En proceso</option>
 </select>
 
 <select name="tipo">
@@ -378,7 +385,13 @@ left:120%;
 <option value="Correctivo" {{ request('tipo')=='Correctivo'?'selected':'' }}>Correctivo</option>
 </select>
 
-<button class="btn-filtrar">Filtrar</button>
+<select name="orden">
+<option value="recientes" {{ request('orden')=='recientes'?'selected':'' }}>Más recientes</option>
+<option value="antiguos" {{ request('orden')=='antiguos'?'selected':'' }}>Más antiguos</option>
+<option value="modificados" {{ request('orden')=='modificados'?'selected':'' }}>Modificados recientemente</option>
+</select>
+
+<button type="submit" class="btn-filtrar">Filtrar</button>
 
 <a href="/mantenimientos" class="btn-limpiar">Limpiar</a>
 
@@ -424,9 +437,13 @@ left:120%;
 <td>{{ $m->fecha_programada }}</td>
 
 <td>
+@if($m->estado == 'En proceso')
+<span class="badge badge-en">{{ $m->estado }}</span>
+@else
 <span class="badge badge-{{ strtolower($m->estado) }}">
 {{ $m->estado }}
 </span>
+@endif
 </td>
 
 </tr>
@@ -441,15 +458,15 @@ left:120%;
 
 <div class="mant-actions">
 
-<button class="btn-primary" onclick="window.location.href='/mantenimientos/create'">
+<button type="button" class="btn-primary" onclick="window.location.href='/mantenimientos/create'">
 Nuevo
 </button>
 
-<button class="btn-secondary" onclick="editarSeleccion()">
+<button type="button" class="btn-secondary" onclick="editarSeleccion()">
 Propiedades
 </button>
 
-<button class="btn-danger" onclick="eliminarSeleccion()">
+<button type="button" class="btn-danger" onclick="eliminarSeleccion()">
 Eliminar
 </button>
 
@@ -473,9 +490,9 @@ Eliminar
 
 <div class="modal-actions">
 
-<button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+<button type="button" class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
 
-<button class="btn-confirmar" onclick="confirmarEliminar()">Eliminar</button>
+<button type="button" class="btn-confirmar" onclick="confirmarEliminar()">Eliminar</button>
 
 </div>
 

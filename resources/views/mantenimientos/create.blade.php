@@ -23,6 +23,8 @@
     display:block;
     margin-bottom:5px;
     font-size:14px;
+    font-weight:600;
+    color:#374151;
 }
 
 .form-group input,
@@ -32,6 +34,48 @@
     padding:10px;
     border-radius:8px;
     border:1px solid #ddd;
+    box-sizing:border-box;
+}
+
+.form-group textarea{
+    min-height:110px;
+    resize:vertical;
+}
+
+.input-error{
+    border-color:#dc2626 !important;
+}
+
+.error-text{
+    color:#dc2626;
+    font-size:12px;
+    margin-top:5px;
+    display:block;
+}
+
+/* ALERTAS */
+
+.alerta-error{
+    background:#fee2e2;
+    color:#991b1b;
+    border:1px solid #fecaca;
+    padding:12px 14px;
+    border-radius:12px;
+    margin-bottom:18px;
+}
+
+.alerta-error ul{
+    margin:0;
+    padding-left:18px;
+}
+
+.alerta-success{
+    background:#dcfce7;
+    color:#166534;
+    border:1px solid #bbf7d0;
+    padding:12px 14px;
+    border-radius:12px;
+    margin-bottom:18px;
 }
 
 /* BOTONES */
@@ -43,6 +87,12 @@
     border:none;
     border-radius:10px;
     cursor:pointer;
+    transition:.2s ease;
+}
+
+.btn-primary:hover{
+    background:#0c3d68;
+    transform:translateY(-1px);
 }
 
 .btn-select{
@@ -53,6 +103,12 @@
     border-radius:8px;
     cursor:pointer;
     margin-top:8px;
+    transition:.2s ease;
+}
+
+.btn-select:hover{
+    background:#1f68c7;
+    transform:translateY(-1px);
 }
 
 .btn-volver{
@@ -62,6 +118,12 @@
     padding:10px 14px;
     border-radius:8px;
     cursor:pointer;
+    transition:.2s ease;
+}
+
+.btn-volver:hover{
+    background:#4b5563;
+    transform:translateY(-1px);
 }
 
 /* ================= MODAL ================= */
@@ -149,133 +211,208 @@
     margin-top:10px;
 }
 
-.error{
-    color:#dc2626;
-    font-size:12px;
-    margin-top:5px;
-}
-
 </style>
 
 <div class="form-container">
 
-<h1>Nuevo Mantenimiento</h1>
+    <h1>Nuevo Mantenimiento</h1>
 
-<form action="/mantenimientos" method="POST" id="formMantenimiento">
-@csrf
+    @if(session('success'))
+        <div class="alerta-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
-<div class="form-group">
-<label>Computadora</label>
+    @if(session('error'))
+        <div class="alerta-error">
+            {{ session('error') }}
+        </div>
+    @endif
 
-<input type="text" id="nombreComputadora" placeholder="Ninguna computadora seleccionada" readonly required>
+    @if ($errors->any())
+        <div class="alerta-error">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-<input type="hidden" name="id_computadora" id="computadoraSeleccionada" required>
+    <form action="{{ route('mantenimientos.store') }}" method="POST" id="formMantenimiento">
+        @csrf
 
-<button type="button" class="btn-select" onclick="abrirModal()">Seleccionar computadora</button>
-</div>
+        <div class="form-group">
+            <label>Computadora</label>
 
-<div class="form-group">
-<label>Tipo</label>
+            <input
+                type="text"
+                id="nombreComputadora"
+                placeholder="Ninguna computadora seleccionada"
+                value="{{ old('nombre_computadora') }}"
+                readonly
+                required
+            >
 
-<select name="tipo" required>
-<option value="">Seleccionar tipo</option>
-<option value="Preventivo">Preventivo</option>
-<option value="Correctivo">Correctivo</option>
-</select>
-</div>
+            <input
+                type="hidden"
+                name="id_computadora"
+                id="computadoraSeleccionada"
+                value="{{ old('id_computadora') }}"
+                required
+            >
 
-<div class="form-group">
-<label>Fecha programada</label>
+            <button type="button" class="btn-select" onclick="abrirModal()">
+                Seleccionar computadora
+            </button>
 
-<input 
-    type="date" 
-    name="fecha_programada" 
-    id="fecha_programada"
-    min="{{ date('Y-01-01') }}"
-    required
->
+            @error('id_computadora')
+                <span class="error-text">{{ $message }}</span>
+            @enderror
+        </div>
 
-<div id="errorFecha" class="error" style="display:none;"></div>
-</div>
+        <div class="form-group">
+            <label>Tipo</label>
 
-<div class="form-group">
-<label>Estado</label>
+            <select name="tipo" class="{{ $errors->has('tipo') ? 'input-error' : '' }}" required>
+                <option value="">Seleccionar tipo</option>
+                <option value="Preventivo" {{ old('tipo') == 'Preventivo' ? 'selected' : '' }}>Preventivo</option>
+                <option value="Correctivo" {{ old('tipo') == 'Correctivo' ? 'selected' : '' }}>Correctivo</option>
+            </select>
 
-<select name="estado" required>
-<option value="">Seleccionar estado</option>
-<option value="Pendiente">Pendiente</option>
+            @error('tipo')
+                <span class="error-text">{{ $message }}</span>
+            @enderror
+        </div>
 
-</select>
-</div>
+        <div class="form-group">
+            <label>Fecha programada</label>
 
-<div class="form-group">
-<label>Observaciones</label>
-<textarea name="observaciones" required></textarea>
-</div>
+            <input
+                type="date"
+                name="fecha_programada"
+                id="fecha_programada"
+                value="{{ old('fecha_programada') }}"
+                min="{{ now()->startOfYear()->format('Y-m-d') }}"
+                class="{{ $errors->has('fecha_programada') ? 'input-error' : '' }}"
+                required
+            >
 
-<button class="btn-primary" type="submit">
-Guardar
-</button>
+            <span id="errorFecha" class="error-text" style="display:none;"></span>
 
-</form>
+            @error('fecha_programada')
+                <span class="error-text">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div class="form-group">
+            <label>Estado</label>
+
+            <select name="estado" class="{{ $errors->has('estado') ? 'input-error' : '' }}" required>
+                <option value="">Seleccionar estado</option>
+                <option value="Pendiente" {{ old('estado') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                <option value="En proceso" {{ old('estado') == 'En proceso' ? 'selected' : '' }}>En proceso</option>
+            </select>
+
+            @error('estado')
+                <span class="error-text">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <div class="form-group">
+            <label>Observaciones</label>
+
+            <textarea
+                name="observaciones"
+                id="observaciones"
+                class="{{ $errors->has('observaciones') ? 'input-error' : '' }}"
+                required
+            >{{ old('observaciones') }}</textarea>
+
+            <span id="errorObservaciones" class="error-text" style="display:none;"></span>
+
+            @error('observaciones')
+                <span class="error-text">{{ $message }}</span>
+            @enderror
+        </div>
+
+        <button class="btn-primary" type="submit">
+            Guardar
+        </button>
+
+    </form>
 
 </div>
 
 <!-- ================= MODAL ================= -->
 
 <div id="modalEquipos" class="modal-bg">
-<div class="modal-box">
+    <div class="modal-box">
 
-<h3>Seleccionar computadora</h3>
+        <h3>Seleccionar computadora</h3>
 
-<input type="text" id="buscarEquipo" placeholder="Buscar computadora..." class="buscador-equipos" onkeyup="filtrarEquipos()">
+        <input
+            type="text"
+            id="buscarEquipo"
+            placeholder="Buscar computadora..."
+            class="buscador-equipos"
+            onkeyup="filtrarEquipos()"
+        >
 
-<div class="tabla-equipos">
-<table id="tablaEquipos">
+        <div class="tabla-equipos">
+            <table id="tablaEquipos">
 
-<thead>
-<tr>
-<th></th>
-<th>ID</th>
-<th>Nombre</th>
-<th>Marca</th>
-<th>Modelo</th>
-<th>Estado</th>
-</tr>
-</thead>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
 
-<tbody>
+                <tbody>
+                    @foreach($computadoras as $pc)
+                        <tr onclick="seleccionarEquipo(this)">
+                            <td>
+                                <input
+                                    type="radio"
+                                    name="equipoSeleccionado"
+                                    value="{{ $pc->id }}"
+                                    data-nombre="{{ $pc->nombre_equipo }}"
+                                    {{ old('id_computadora') == $pc->id ? 'checked' : '' }}
+                                    onclick="event.stopPropagation()"
+                                >
+                            </td>
 
-@foreach($computadoras as $pc)
-<tr onclick="seleccionarEquipo(this)">
-<td>
-<input type="radio" name="equipoSeleccionado" value="{{ $pc->id }}" data-nombre="{{ $pc->nombre_equipo }}" onclick="event.stopPropagation()">
-</td>
-<td>{{ $pc->id }}</td>
-<td>{{ $pc->nombre_equipo }}</td>
-<td>{{ $pc->marca }}</td>
-<td>{{ $pc->modelo }}</td>
-<td>{{ $pc->estado }}</td>
-</tr>
-@endforeach
+                            <td>{{ $pc->id }}</td>
+                            <td>{{ $pc->nombre_equipo }}</td>
+                            <td>{{ $pc->marca }}</td>
+                            <td>{{ $pc->modelo }}</td>
+                            <td>{{ $pc->estado }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
 
-</tbody>
+            </table>
+        </div>
 
-</table>
-</div>
+        <div class="modal-actions">
+            <button type="button" class="btn-volver" onclick="cerrarModal()">
+                Volver
+            </button>
 
-<div class="modal-actions">
-<button class="btn-volver" onclick="cerrarModal()">Volver</button>
-<button class="btn-primary" onclick="confirmarSeleccion()">Confirmar</button>
-</div>
+            <button type="button" class="btn-primary" onclick="confirmarSeleccion()">
+                Confirmar
+            </button>
+        </div>
 
-</div>
+    </div>
 </div>
 
 <script>
-
-/* ================= MODAL ================= */
-
 function abrirModal(){
     document.getElementById("modalEquipos").classList.add("active");
 }
@@ -286,7 +423,7 @@ function cerrarModal(){
 
 function seleccionarEquipo(fila){
     document.querySelectorAll("#tablaEquipos tbody tr")
-    .forEach(f => f.classList.remove("fila-activa"));
+        .forEach(f => f.classList.remove("fila-activa"));
 
     fila.classList.add("fila-activa");
 
@@ -308,8 +445,6 @@ function confirmarSeleccion(){
     cerrarModal();
 }
 
-/* ================= BUSCADOR ================= */
-
 function filtrarEquipos(){
     let input = document.getElementById("buscarEquipo").value.toLowerCase();
     let filas = document.querySelectorAll("#tablaEquipos tbody tr");
@@ -320,17 +455,50 @@ function filtrarEquipos(){
     });
 }
 
-/* ================= VALIDACION FECHA ================= */
-
 document.addEventListener('DOMContentLoaded', function () {
+    const radios = document.querySelectorAll('input[name="equipoSeleccionado"]');
+    const hidden = document.getElementById("computadoraSeleccionada");
+    const nombre = document.getElementById("nombreComputadora");
+    const fecha = document.getElementById("fecha_programada");
+    const observaciones = document.getElementById("observaciones");
+    const form = document.getElementById("formMantenimiento");
+    const errorFecha = document.getElementById("errorFecha");
+    const errorObservaciones = document.getElementById("errorObservaciones");
 
-    const fecha = document.getElementById('fecha_programada');
-    const error = document.getElementById('errorFecha');
-    const form = document.getElementById('formMantenimiento');
+    radios.forEach(radio => {
+        if (radio.checked) {
+            hidden.value = radio.value;
+            nombre.value = radio.dataset.nombre;
+            radio.closest('tr')?.classList.add('fila-activa');
+        }
+    });
+
+    function limpiarErrorFecha(){
+        errorFecha.style.display = 'none';
+        errorFecha.textContent = '';
+        fecha.style.borderColor = '#ddd';
+    }
+
+    function mostrarErrorFecha(mensaje){
+        errorFecha.style.display = 'block';
+        errorFecha.textContent = mensaje;
+        fecha.style.borderColor = '#dc2626';
+    }
+
+    function limpiarErrorObservaciones(){
+        errorObservaciones.style.display = 'none';
+        errorObservaciones.textContent = '';
+        observaciones.style.borderColor = '#ddd';
+    }
+
+    function mostrarErrorObservaciones(mensaje){
+        errorObservaciones.style.display = 'block';
+        errorObservaciones.textContent = mensaje;
+        observaciones.style.borderColor = '#dc2626';
+    }
 
     function validarFecha(){
-
-        error.style.display = 'none';
+        limpiarErrorFecha();
 
         if(!fecha.value) return true;
 
@@ -338,8 +506,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const inicioAnio = new Date(new Date().getFullYear(), 0, 1);
 
         if(seleccionada < inicioAnio){
-            error.innerText = "No se permiten fechas de años pasados";
-            error.style.display = 'block';
+            mostrarErrorFecha('No se permiten fechas de años pasados.');
             fecha.focus();
             return false;
         }
@@ -347,16 +514,32 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
+    function validarObservaciones(){
+        limpiarErrorObservaciones();
+
+        if(!observaciones.value.trim()) return true;
+
+        if(/\d/.test(observaciones.value)){
+            mostrarErrorObservaciones('Las observaciones no pueden contener números.');
+            observaciones.focus();
+            return false;
+        }
+
+        return true;
+    }
+
     fecha.addEventListener('change', validarFecha);
+    observaciones.addEventListener('input', validarObservaciones);
 
     form.addEventListener('submit', function(e){
-        if(!validarFecha()){
+        const fechaOk = validarFecha();
+        const observacionesOk = validarObservaciones();
+
+        if(!fechaOk || !observacionesOk){
             e.preventDefault();
         }
     });
-
 });
-
 </script>
 
 @endsection

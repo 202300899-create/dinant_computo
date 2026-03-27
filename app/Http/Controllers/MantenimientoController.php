@@ -22,7 +22,53 @@ class MantenimientoController extends Controller
             $query->where('tipo', $request->tipo);
         }
 
-        $mantenimientos = $query->orderBy('fecha_programada', 'desc')->get();
+        // ================= ORDEN =================
+        $hoy = Carbon::today()->toDateString();
+
+        if ($request->filled('orden')) {
+            switch ($request->orden) {
+
+                // DESDE HOY HACIA ADELANTE EN SECUENCIA
+                case 'recientes':
+                    $query->orderByRaw("
+                        CASE
+                            WHEN COALESCE(fecha_realizada, fecha_programada) >= ? THEN 0
+                            ELSE 1
+                        END ASC
+                    ", [$hoy])
+                    ->orderByRaw("
+                        CASE
+                            WHEN COALESCE(fecha_realizada, fecha_programada) >= ? THEN COALESCE(fecha_realizada, fecha_programada)
+                        END ASC
+                    ", [$hoy])
+                    ->orderByRaw("
+                        CASE
+                            WHEN COALESCE(fecha_realizada, fecha_programada) < ? THEN COALESCE(fecha_realizada, fecha_programada)
+                        END DESC
+                    ", [$hoy]);
+                    break;
+
+                // DEL MÁS VIEJO AL MÁS NUEVO
+                case 'antiguos':
+                    $query->orderByRaw('COALESCE(fecha_realizada, fecha_programada) ASC');
+                    break;
+
+                // MODIFICADOS RECIENTEMENTE
+                case 'modificados':
+                    $query->orderBy('updated_at', 'desc');
+                    break;
+
+                // SI VIENE ALGO RARO, DEJAR POR ID DESC
+                default:
+                    $query->orderBy('id', 'desc');
+                    break;
+            }
+        } else {
+            // ORDEN POR DEFECTO: ID MAYOR A MENOR
+            $query->orderBy('id', 'desc');
+        }
+
+        $mantenimientos = $query->get();
 
         return view('mantenimientos.index', compact('mantenimientos'));
     }
@@ -39,19 +85,24 @@ class MantenimientoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_computadora'   => 'required',
-            'tipo'             => 'required',
+            'id_computadora'   => 'required|exists:computadoras,id',
+            'tipo'             => 'required|in:Preventivo,Correctivo',
             'fecha_programada' => 'required|date|after_or_equal:' . now()->startOfYear()->format('Y-m-d'),
-            'estado'           => 'required',
-            'observaciones'    => ['required', 'regex:/^[^\d]+$/u']
+            'estado'           => 'required|in:Pendiente,En proceso',
+            'observaciones'    => ['required', 'string', 'max:500', 'regex:/^[^\d]+$/u']
         ], [
             'id_computadora.required'   => 'Debes seleccionar una computadora.',
+            'id_computadora.exists'     => 'La computadora seleccionada no es válida.',
             'tipo.required'             => 'Debes seleccionar el tipo de mantenimiento.',
+            'tipo.in'                   => 'El tipo seleccionado no es válido.',
             'fecha_programada.required' => 'Debes ingresar la fecha programada.',
             'fecha_programada.date'     => 'La fecha programada no es válida.',
-            'fecha_programada.after_or_equal' => 'No se pueden crear tickets con fechas de años pasados.',
+            'fecha_programada.after_or_equal' => 'No se permiten fechas de años pasados.',
             'estado.required'           => 'Debes seleccionar el estado.',
+            'estado.in'                 => 'El estado seleccionado no es válido.',
             'observaciones.required'    => 'Debes escribir las observaciones.',
+            'observaciones.string'      => 'Las observaciones deben ser texto.',
+            'observaciones.max'         => 'Las observaciones no pueden superar los 500 caracteres.',
             'observaciones.regex'       => 'Las observaciones no pueden contener números.'
         ]);
 
@@ -64,7 +115,7 @@ class MantenimientoController extends Controller
         ]);
 
         return redirect()->route('mantenimientos.index')
-            ->with('success', 'Mantenimiento creado');
+            ->with('success', 'Mantenimiento creado correctamente.');
     }
 
     /* ================= SHOW ================= */
@@ -92,11 +143,14 @@ class MantenimientoController extends Controller
         $mantenimiento = Mantenimiento::findOrFail($id);
 
         $request->validate([
-            'estado'      => 'required',
-            'descripcion' => ['required', 'regex:/^[^\d]+$/u']
+            'estado'      => 'required|in:Pendiente,En proceso,Completado',
+            'descripcion' => ['required', 'string', 'max:500', 'regex:/^[^\d]+$/u']
         ], [
             'estado.required'      => 'Debes seleccionar el estado.',
+            'estado.in'            => 'El estado seleccionado no es válido.',
             'descripcion.required' => 'Debes escribir una observación.',
+            'descripcion.string'   => 'La observación debe ser texto.',
+            'descripcion.max'      => 'La observación no puede superar los 500 caracteres.',
             'descripcion.regex'    => 'La observación no puede contener números.'
         ]);
 
@@ -121,13 +175,13 @@ class MantenimientoController extends Controller
 
         if ($request->origen === 'calendario') {
             return redirect()->route('calendario.index')
-                ->with('success', 'Ticket cerrado correctamente');
+                ->with('success', 'Ticket cerrado correctamente.');
         }
 
         return redirect()->route('mantenimientos.show', [
             'mantenimiento' => $mantenimiento->id,
             'origen' => 'mantenimientos'
-        ])->with('success', 'Actualizado');
+        ])->with('success', 'Mantenimiento actualizado correctamente.');
     }
 
     /* ================= DESTROY ================= */
@@ -137,6 +191,6 @@ class MantenimientoController extends Controller
         $mantenimiento->delete();
 
         return redirect()->route('mantenimientos.index')
-            ->with('success', 'Eliminado');
+            ->with('success', 'Mantenimiento eliminado correctamente.');
     }
 }

@@ -114,19 +114,35 @@
 .preview-wrap{
     display:flex;
     align-items:center;
-    gap:16px;
+    gap:18px;
     margin:18px 0 18px 0;
     flex-wrap:wrap;
+    padding:14px;
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    background:#f8fafc;
 }
 
 .preview-foto{
-    width:90px;
-    height:90px;
+    width:92px;
+    height:92px;
     border-radius:50%;
     object-fit:cover;
     display:block;
-    border:3px solid #e5e7eb;
+    border:3px solid #dbeafe;
     background:#f9fafb;
+    box-shadow:0 6px 16px rgba(0,0,0,0.08);
+}
+
+.preview-info{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.preview-usuario{
+    color:#111827;
+    font-size:15px;
 }
 
 .preview-texto{
@@ -170,12 +186,36 @@
     box-sizing:border-box;
 }
 
+.campo input[type="file"]{
+    padding:10px 12px;
+    background:white;
+    border:1px dashed #cbd5e1;
+}
+
+.campo input[type="file"]:hover{
+    border-color:#1d6fa5;
+    background:#f8fbff;
+}
+
 .campo input:focus,
 .campo select:focus{
     outline:none;
     border-color:#1d6fa5;
     box-shadow:0 0 0 4px rgba(29,111,165,0.10);
     background:white;
+}
+
+.input-error{
+    border-color:#dc2626 !important;
+    background:#fff7f7 !important;
+    box-shadow:none !important;
+}
+
+.error-text{
+    margin-top:6px;
+    color:#b91c1c;
+    font-size:12px;
+    font-weight:500;
 }
 
 .acciones{
@@ -233,6 +273,24 @@
     margin-top:8px;
     color:#6b7280;
     font-size:12px;
+    line-height:1.5;
+}
+
+.texto-ayuda-foto{
+    margin-top:8px;
+    padding:10px 12px;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    color:#6b7280;
+    font-size:12px;
+    line-height:1.5;
+}
+
+.form-separador{
+    height:1px;
+    background:#eef2f7;
+    margin:20px 0 6px 0;
 }
 
 @media(max-width: 900px){
@@ -262,6 +320,10 @@
 
     .btn{
         width:100%;
+    }
+
+    .preview-wrap{
+        align-items:flex-start;
     }
 }
 </style>
@@ -293,7 +355,6 @@
 
     <div class="config-stack">
 
-        {{-- PERFIL --}}
         <div class="acordeon activo">
             <button type="button" class="acordeon-header">
                 <div class="acordeon-titulos">
@@ -311,25 +372,48 @@
 
                         <div class="preview-wrap">
                             @if($admin->foto)
-                                <img src="{{ asset($admin->foto) }}" class="preview-foto" alt="Foto perfil">
+                                <img src="{{ asset($admin->foto) }}" class="preview-foto" alt="Foto perfil" id="previewImagen">
                             @else
-                                <img src="{{ asset('images/user.jpeg') }}" class="preview-foto" alt="Foto perfil">
+                                <img src="{{ asset('images/user.jpeg') }}" class="preview-foto" alt="Foto perfil" id="previewImagen">
                             @endif
 
-                            <div class="preview-texto">
-                                Usuario actual: <strong>{{ $admin->usuario }}</strong>
+                            <div class="preview-info">
+                                <div class="preview-usuario">Usuario actual: <strong>{{ $admin->usuario }}</strong></div>
+                                <div class="preview-texto">Puedes cambiar tu nombre de usuario y actualizar la imagen del perfil.</div>
                             </div>
                         </div>
 
                         <div class="form-grid">
                             <div class="campo">
-                                <label>Usuario</label>
-                                <input type="text" name="usuario" value="{{ old('usuario', $admin->usuario) }}" required>
+                                <label for="usuario">Usuario</label>
+                                <input
+                                    type="text"
+                                    id="usuario"
+                                    name="usuario"
+                                    value="{{ old('usuario', $admin->usuario) }}"
+                                    class="{{ $errors->has('usuario') ? 'input-error' : '' }}"
+                                    required
+                                >
+                                @error('usuario')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="campo">
-                                <label>Foto de perfil</label>
-                                <input type="file" name="foto">
+                                <label for="foto">Foto de perfil</label>
+                                <input
+                                    type="file"
+                                    id="foto"
+                                    name="foto"
+                                    accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                    class="{{ $errors->has('foto') ? 'input-error' : '' }}"
+                                >
+                                <div class="texto-ayuda-foto">
+                                    Solo se permiten archivos JPG, JPEG y PNG. Tamaño máximo: 2 MB.
+                                </div>
+                                @error('foto')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -341,7 +425,6 @@
             </div>
         </div>
 
-        {{-- CONTRASEÑA --}}
         <div class="acordeon">
             <button type="button" class="acordeon-header">
                 <div class="acordeon-titulos">
@@ -359,19 +442,46 @@
 
                         <div class="form-grid-3">
                             <div class="campo">
-                                <label>Contraseña actual</label>
-                                <input type="password" name="password_actual" required>
+                                <label for="password_actual">Contraseña actual</label>
+                                <input
+                                    type="password"
+                                    id="password_actual"
+                                    name="password_actual"
+                                    class="{{ $errors->has('password_actual') ? 'input-error' : '' }}"
+                                    required
+                                >
+                                @error('password_actual')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="campo">
-                                <label>Nueva contraseña</label>
-                                <input type="password" name="password_nueva" required>
+                                <label for="password_nueva">Nueva contraseña</label>
+                                <input
+                                    type="password"
+                                    id="password_nueva"
+                                    name="password_nueva"
+                                    class="{{ $errors->has('password_nueva') ? 'input-error' : '' }}"
+                                    required
+                                >
+                                @error('password_nueva')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="campo">
-                                <label>Confirmar nueva contraseña</label>
-                                <input type="password" name="password_nueva_confirmation" required>
+                                <label for="password_nueva_confirmation">Confirmar nueva contraseña</label>
+                                <input
+                                    type="password"
+                                    id="password_nueva_confirmation"
+                                    name="password_nueva_confirmation"
+                                    required
+                                >
                             </div>
+                        </div>
+
+                        <div class="texto-ayuda">
+                            Usa una contraseña segura y fácil de recordar para ti.
                         </div>
 
                         <div class="acciones">
@@ -382,7 +492,6 @@
             </div>
         </div>
 
-        {{-- CREAR USUARIO --}}
         <div class="acordeon">
             <button type="button" class="acordeon-header">
                 <div class="acordeon-titulos">
@@ -399,18 +508,42 @@
 
                         <div class="form-grid-3">
                             <div class="campo">
-                                <label>Usuario</label>
-                                <input type="text" name="nuevo_usuario" value="{{ old('nuevo_usuario') }}" required>
+                                <label for="nuevo_usuario">Usuario</label>
+                                <input
+                                    type="text"
+                                    id="nuevo_usuario"
+                                    name="nuevo_usuario"
+                                    value="{{ old('nuevo_usuario') }}"
+                                    class="{{ $errors->has('nuevo_usuario') ? 'input-error' : '' }}"
+                                    required
+                                >
+                                @error('nuevo_usuario')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="campo">
-                                <label>Contraseña</label>
-                                <input type="password" name="nuevo_password" required>
+                                <label for="nuevo_password">Contraseña</label>
+                                <input
+                                    type="password"
+                                    id="nuevo_password"
+                                    name="nuevo_password"
+                                    class="{{ $errors->has('nuevo_password') ? 'input-error' : '' }}"
+                                    required
+                                >
+                                @error('nuevo_password')
+                                    <div class="error-text">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="campo">
-                                <label>Confirmar contraseña</label>
-                                <input type="password" name="nuevo_password_confirmation" required>
+                                <label for="nuevo_password_confirmation">Confirmar contraseña</label>
+                                <input
+                                    type="password"
+                                    id="nuevo_password_confirmation"
+                                    name="nuevo_password_confirmation"
+                                    required
+                                >
                             </div>
                         </div>
 
@@ -426,7 +559,6 @@
             </div>
         </div>
 
-        {{-- CERRAR SESIÓN --}}
         <div class="acordeon">
             <button type="button" class="acordeon-header">
                 <div class="acordeon-titulos">
@@ -479,6 +611,33 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    const inputFoto = document.getElementById('foto');
+    const previewImagen = document.getElementById('previewImagen');
+
+    if (inputFoto && previewImagen) {
+        inputFoto.addEventListener('change', function (e) {
+            const archivo = e.target.files[0];
+
+            if (!archivo) return;
+
+            const tiposPermitidos = ['image/jpeg', 'image/png'];
+
+            if (!tiposPermitidos.includes(archivo.type)) {
+                alert('Solo se permiten imágenes JPG, JPEG o PNG.');
+                inputFoto.value = '';
+                return;
+            }
+
+            const lector = new FileReader();
+
+            lector.onload = function (evento) {
+                previewImagen.src = evento.target.result;
+            };
+
+            lector.readAsDataURL(archivo);
+        });
+    }
 });
 </script>
 
