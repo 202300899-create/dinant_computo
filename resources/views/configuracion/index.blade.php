@@ -193,6 +193,10 @@
     font-size:14px;
     cursor:pointer;
     transition:all .2s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
 }
 
 .btn-primary{
@@ -212,6 +216,16 @@
 
 .btn-secondary:hover{
     background:#1f68c7;
+    transform:translateY(-1px);
+}
+
+.btn-danger{
+    background:#dc2626;
+    color:white;
+}
+
+.btn-danger:hover{
+    background:#b91c1c;
     transform:translateY(-1px);
 }
 
@@ -412,6 +426,29 @@
             </div>
         </div>
 
+        {{-- CERRAR SESIÓN --}}
+        <div class="acordeon">
+            <button type="button" class="acordeon-header">
+                <div class="acordeon-titulos">
+                    <h2>Cerrar sesión</h2>
+                    <p>Finaliza la sesión actual de forma segura.</p>
+                </div>
+                <span class="acordeon-icono">+</span>
+            </button>
+
+            <div class="acordeon-body">
+                <div class="acordeon-body-contenido">
+                    <div class="texto-ayuda" style="margin-top:16px;">
+                        Al cerrar sesión tendrás que volver a iniciar sesión para entrar al sistema.
+                    </div>
+
+                    <div class="acciones">
+                        <a href="{{ route('logout') }}" class="btn btn-danger">Cerrar sesión</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 </div>
@@ -420,7 +457,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const acordeones = document.querySelectorAll('.acordeon');
 
-    acordeones.forEach((acordeon, index) => {
+    acordeones.forEach((acordeon) => {
         const header = acordeon.querySelector('.acordeon-header');
         const body = acordeon.querySelector('.acordeon-body');
 

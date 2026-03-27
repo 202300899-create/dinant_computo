@@ -7,6 +7,7 @@ use App\Models\Usuario;
 use App\Models\Ubicacion;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ComputadoraController extends Controller
@@ -206,17 +207,34 @@ class ComputadoraController extends Controller
 
     public function destroy($id)
     {
-        $computadora = Computadora::findOrFail($id);
+        try {
+            $computadora = Computadora::findOrFail($id);
 
-        if ($computadora->imagen && file_exists(public_path($computadora->imagen))) {
-            unlink(public_path($computadora->imagen));
+            if ($computadora->imagen && file_exists(public_path($computadora->imagen))) {
+                unlink(public_path($computadora->imagen));
+            }
+
+            if (method_exists($computadora, 'mantenimientos')) {
+                $computadora->mantenimientos()->delete();
+            }
+
+            $computadora->delete();
+
+            $ultimoId = Computadora::max('id');
+
+            if ($ultimoId) {
+                DB::statement("ALTER TABLE computadoras AUTO_INCREMENT = " . ($ultimoId + 1));
+            } else {
+                DB::statement("ALTER TABLE computadoras AUTO_INCREMENT = 1");
+            }
+
+            return redirect()->route('computadoras.index')
+                ->with('success', 'Computadora eliminada correctamente');
+
+        } catch (\Exception $e) {
+            return redirect()->route('computadoras.index')
+                ->with('error', 'Error al eliminar la computadora');
         }
-
-        $computadora->mantenimientos()->delete();
-        $computadora->delete();
-
-        return redirect()->route('computadoras.index')
-            ->with('success', 'Computadora eliminada correctamente');
     }
 
     public function show($id)

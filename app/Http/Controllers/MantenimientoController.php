@@ -31,6 +31,7 @@ class MantenimientoController extends Controller
     public function create()
     {
         $computadoras = Computadora::all();
+
         return view('mantenimientos.create', compact('computadoras'));
     }
 
@@ -40,15 +41,26 @@ class MantenimientoController extends Controller
         $request->validate([
             'id_computadora'   => 'required',
             'tipo'             => 'required',
-            'fecha_programada' => 'required|date'
+            'fecha_programada' => 'required|date|after_or_equal:' . now()->startOfYear()->format('Y-m-d'),
+            'estado'           => 'required',
+            'observaciones'    => ['required', 'regex:/^[^\d]+$/u']
+        ], [
+            'id_computadora.required'   => 'Debes seleccionar una computadora.',
+            'tipo.required'             => 'Debes seleccionar el tipo de mantenimiento.',
+            'fecha_programada.required' => 'Debes ingresar la fecha programada.',
+            'fecha_programada.date'     => 'La fecha programada no es válida.',
+            'fecha_programada.after_or_equal' => 'No se pueden crear tickets con fechas de años pasados.',
+            'estado.required'           => 'Debes seleccionar el estado.',
+            'observaciones.required'    => 'Debes escribir las observaciones.',
+            'observaciones.regex'       => 'Las observaciones no pueden contener números.'
         ]);
 
         Mantenimiento::create([
             'id_computadora'   => $request->id_computadora,
             'tipo'             => $request->tipo,
-            'descripcion'      => $request->descripcion,
+            'descripcion'      => trim($request->observaciones),
             'fecha_programada' => $request->fecha_programada,
-            'estado'           => 'Pendiente'
+            'estado'           => $request->estado
         ]);
 
         return redirect()->route('mantenimientos.index')
@@ -79,8 +91,17 @@ class MantenimientoController extends Controller
     {
         $mantenimiento = Mantenimiento::findOrFail($id);
 
+        $request->validate([
+            'estado'      => 'required',
+            'descripcion' => ['required', 'regex:/^[^\d]+$/u']
+        ], [
+            'estado.required'      => 'Debes seleccionar el estado.',
+            'descripcion.required' => 'Debes escribir una observación.',
+            'descripcion.regex'    => 'La observación no puede contener números.'
+        ]);
+
         $mantenimiento->estado = $request->estado;
-        $mantenimiento->descripcion = $request->descripcion;
+        $mantenimiento->descripcion = trim($request->descripcion);
 
         if ($request->estado == 'Completado' && !$mantenimiento->fecha_realizada) {
             $mantenimiento->fecha_realizada = Carbon::now();

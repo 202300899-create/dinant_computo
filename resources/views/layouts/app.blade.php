@@ -22,7 +22,6 @@ margin:0;
 font-family:'Inter',sans-serif;
 background:#f5f6f8;
 color:#1d1d1f;
-
 }
 
 /* ================= HEADER ================= */
@@ -39,7 +38,7 @@ align-items:center;
 justify-content:center;
 box-shadow:0 3px 10px rgba(0,0,0,0.15);
 z-index:9999;
-
+overflow:hidden;
 }
 
 /* CONTENEDOR */
@@ -50,7 +49,6 @@ max-width:1400px;
 display:flex;
 align-items:center;
 padding:0 10px;
-
 }
 
 /* ================= LOGO ================= */
@@ -88,7 +86,6 @@ color:#e3eef9;
 font-size:15px;
 font-weight:500;
 position:relative;
-
 }
 
 .menu a::after{
@@ -100,7 +97,6 @@ width:0;
 height:2px;
 background:white;
 transition:0.3s;
-
 }
 
 .menu a:hover::after{
@@ -125,83 +121,30 @@ border-radius:50%;
 overflow:hidden;
 cursor:pointer;
 border:2px solid white;
-transition:0.2s;
+transition:0.25s ease;
 background:none;
 padding:0;
 display:flex;
 align-items:center;
 justify-content:center;
+text-decoration:none;
+box-shadow:0 4px 10px rgba(0,0,0,0.18);
 }
 
 .perfil-btn:hover{
 transform:scale(1.08);
+box-shadow:0 8px 18px rgba(0,0,0,0.24);
+}
+
+.perfil-btn:active{
+transform:scale(0.96);
 }
 
 .perfil-btn img{
 width:100%;
 height:100%;
 object-fit:cover;
-}
-
-/* ===== DROPDOWN PERFIL ===== */
-
-.dropdown-perfil{
-position:absolute;
-top:55px;
-right:0;
-background:white;
-border-radius:12px;
-box-shadow:0 10px 30px rgba(0,0,0,0.25);
-width:275px;
-overflow:hidden;
-z-index:10050;
-transform-origin:top right;
-}
-
-/* HEADER PERFIL */
-
-.perfil-header{
-display:flex;
-align-items:center;
-gap:12px;
-padding:15px;
-border-bottom:1px solid #eee;
-}
-
-.perfil-header img{
-width:40px;
-height:40px;
-border-radius:50%;
-object-fit:cover;
-}
-
-.nombre{
-font-size:14px;
-font-weight:600;
-}
-
-.rol{
-font-size:12px;
-color:#666;
-}
-
-/* OPCIONES */
-
-.perfil-opciones a{
 display:block;
-padding:12px 15px;
-text-decoration:none;
-font-size:14px;
-color:#333;
-transition:0.2s;
-}
-
-.perfil-opciones a:hover{
-background:#f5f6f8;
-}
-
-.logout{
-color:#e74c3c;
 }
 
 /* ================= HAMBURGUESA ================= */
@@ -217,8 +160,7 @@ margin-left:15px;
 /* ================= CONTENIDO ================= */
 
 .contenido{
-margin-top:40px;
-padding:30px;
+padding:80px 30px 30px;
 }
 
 /* ================= RESPONSIVE ================= */
@@ -260,13 +202,10 @@ margin-left:0;
 margin-top:6px;
 }
 
-.dropdown-perfil{
-right:0;
-width:250px;
-}
 }
 
 </style>
+
 </head>
 
 <body class="{{ session('tema') == 'oscuro' ? 'modo-oscuro' : '' }}">
@@ -276,9 +215,7 @@ width:250px;
 
         <!-- LOGO -->
         <div class="logo">
-           <!--<a href="{{ route('dashboard') }}"> -->
-                <img src="{{ asset('images/logo.png') }}" alt="Dinant">
-            </a>
+            <img src="{{ asset('images/logo.png') }}" alt="Dinant">
         </div>
 
         <!-- MENU -->
@@ -305,47 +242,10 @@ width:250px;
         </div>
 
         <!-- PERFIL -->
-        <div class="perfil-container" x-data="{ open: false }">
-            <button type="button" class="perfil-btn" @click.stop="open = !open">
-               <img src="{{ session('admin_foto') ? asset(session('admin_foto')) : asset('images/user.jpeg') }}" alt="Usuario">
-            </button>
-
-            <div
-                class="dropdown-perfil"
-                x-cloak
-                x-show="open"
-                @click.outside="open = false"
-                x-transition:enter="transition ease-out duration-200"
-                x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
-                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-150"
-                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
-            >
-                <div class="perfil-header">
-                    <img src="{{ session('admin_foto') ? asset(session('admin_foto')) : asset('images/user.jpeg') }}" alt="Usuario">
-
-                    <div>
-                        <div class="nombre">
-                            {{ session('admin_usuario') ?? 'Administrador' }}
-                        </div>
-
-                        <div class="rol">
-                            Administrador
-                        </div>
-                    </div>
-                </div>
-
-                <div class="perfil-opciones">
-                    <a href="{{ route('configuracion.index') }}">
-                        Configuración
-                    </a>
-
-                    <a href="{{ route('logout') }}" class="logout">
-                        Cerrar sesión
-                    </a>
-                </div>
-            </div>
+        <div class="perfil-container">
+            <a href="{{ route('configuracion.index') }}" class="perfil-btn" title="Configuración">
+                <img src="{{ session('admin_foto') ? asset(session('admin_foto')) : asset('images/user.jpeg') }}" alt="Usuario">
+            </a>
         </div>
 
         <!-- HAMBURGUESA -->
