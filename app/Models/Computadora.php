@@ -23,8 +23,7 @@ class Computadora extends Model
         'vida_util',
         'estado',
         'imagen',
-        'id_ubicacion',
-        'id_usuario_asignado' // 🔥 importante
+        'id_ubicacion'
     ];
 
     public function ubicacion()
@@ -32,10 +31,14 @@ class Computadora extends Model
         return $this->belongsTo(Ubicacion::class, 'id_ubicacion');
     }
 
-    // 🔥 relación de UN SOLO usuario
-    public function usuarioAsignado()
+    public function usuarios()
     {
-        return $this->belongsTo(Usuario::class, 'id_usuario_asignado');
+        return $this->belongsToMany(
+            Usuario::class,
+            'computadora_usuario',
+            'computadora_id',
+            'usuario_id'
+        );
     }
 
     public function mantenimientos()

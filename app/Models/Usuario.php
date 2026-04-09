@@ -16,16 +16,18 @@ class Usuario extends Model
         'id_ubicacion'
     ];
 
-    /* ================= RELACIONES ================= */
-
     public function ubicacion()
     {
-        return $this->belongsTo(Ubicacion::class,'id_ubicacion');
+        return $this->belongsTo(Ubicacion::class, 'id_ubicacion');
     }
 
     public function computadoras()
     {
-        return $this->hasMany(Computadora::class,'id_usuario_asignado');
+        return $this->belongsToMany(
+            Computadora::class,
+            'computadora_usuario',
+            'usuario_id',
+            'computadora_id'
+        );
     }
-
 }

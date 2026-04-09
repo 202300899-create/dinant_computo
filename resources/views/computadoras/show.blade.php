@@ -7,170 +7,166 @@
 /* ================= CONTENEDOR ================= */
 
 .ficha{
-max-width:950px;
-margin:0 auto;
-background:white;
-padding:25px;
-border-radius:16px;
-box-shadow:0 6px 18px rgba(0,0,0,0.05);
-margin-bottom:20px;
+    max-width:950px;
+    margin:0 auto;
+    background:white;
+    padding:25px;
+    border-radius:16px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.05);
+    margin-bottom:20px;
 }
 
 /* GRID */
 
 .ficha-grid{
-display:grid;
-grid-template-columns:1fr 260px;
-gap:25px;
-align-items:start;
+    display:grid;
+    grid-template-columns:1fr 260px;
+    gap:25px;
+    align-items:start;
 }
 
 /* ITEMS */
 
 .item{
-margin-bottom:10px;
-font-size:14px;
-color:#374151;
+    margin-bottom:10px;
+    font-size:14px;
+    color:#374151;
 }
 
 /* ================= BADGES ================= */
 
 .badge{
-display:inline-block;
-padding:6px 12px;
-border-radius:6px;
-font-size:12px;
-font-weight:600;
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:6px;
+    font-size:12px;
+    font-weight:600;
 }
 
 /* ESTADOS */
 
 .badge-pendiente{
-background:#ef4444;
-color:white;
+    background:#ef4444;
+    color:white;
 }
 
 .badge-completado{
-background:#22c55e;
-color:white;
+    background:#22c55e;
+    color:white;
 }
 
-/* TIPOS (COLORES CORREGIDOS) */
+/* TIPOS */
 
 .badge-preventivo{
-background:#3b82f6;
-color:white;
+    background:#3b82f6;
+    color:white;
 }
 
 .badge-correctivo{
-background:#facc15;
-color:#111827;
+    background:#facc15;
+    color:#111827;
 }
-
 
 /* ================= IMAGEN ================= */
 
 .imagen-box{
-width:100%;
-height:340px;
-border-radius:16px;
-background:#f4f6f9;
-display:flex;
-align-items:center;
-justify-content:center;
-overflow:hidden;
-box-shadow: inset 0 0 0 1px #e5e7eb;
+    width:100%;
+    height:340px;
+    border-radius:16px;
+    background:#f4f6f9;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    box-shadow: inset 0 0 0 1px #e5e7eb;
 }
 
 .imagen-box img{
-width:100%;
-height:100%;
-object-fit:cover;
+    width:100%;
+    height:100%;
+    object-fit:cover;
 }
-
 
 /* ================= BOTONES ================= */
 
 .acciones{
-margin-top:20px;
-display:flex;
-gap:10px;
-flex-wrap:wrap;
+    margin-top:20px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
 }
 
 .btn-editar{
-background:#0f4c81;
-color:white;
-border:none;
-padding:10px 18px;
-border-radius:10px;
-cursor:pointer;
-transition:.2s;
+    background:#0f4c81;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.2s;
 }
 
 .btn-editar:hover{
-background:#0c3c66;
+    background:#0c3c66;
 }
 
 .btn-volver{
-background:#6b7280;
-color:white;
-border:none;
-padding:10px 18px;
-border-radius:10px;
-cursor:pointer;
-transition:.2s;
+    background:#6b7280;
+    color:white;
+    border:none;
+    padding:10px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:.2s;
 }
 
 .btn-volver:hover{
-background:#4b5563;
+    background:#4b5563;
 }
-
 
 /* ================= HISTORIAL ================= */
 
 .historial{
-max-width:950px;
-margin:0 auto;
-background:white;
-padding:20px;
-border-radius:16px;
-box-shadow:0 6px 18px rgba(0,0,0,0.05);
+    max-width:950px;
+    margin:0 auto;
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.05);
 }
 
 .historial h2{
-margin-bottom:15px;
-font-size:18px;
-font-weight:600;
-color:#111827;
+    margin-bottom:15px;
+    font-size:18px;
+    font-weight:600;
+    color:#111827;
 }
-
 
 /* ================= TABLA ================= */
 
 .tabla{
-width:100%;
-border-collapse:collapse;
+    width:100%;
+    border-collapse:collapse;
 }
 
 .tabla th{
-text-align:left;
-padding:10px;
-background:#f4f6f9;
-font-size:13px;
-color:#6b7280;
-border-bottom:1px solid #e5e7eb;
+    text-align:left;
+    padding:10px;
+    background:#f4f6f9;
+    font-size:13px;
+    color:#6b7280;
+    border-bottom:1px solid #e5e7eb;
 }
 
 .tabla td{
-padding:10px;
-border-top:1px solid #eee;
-font-size:14px;
-color:#374151;
+    padding:10px;
+    border-top:1px solid #eee;
+    font-size:14px;
+    color:#374151;
 }
 
 .tabla tr:hover{
-background:#f9fbfd;
+    background:#f9fbfd;
 }
 
 .titulo{
@@ -180,11 +176,39 @@ background:#f9fbfd;
     letter-spacing: 1px;
     text-transform: uppercase;
 }
+
+.lista-usuarios{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:6px;
+}
+
+.usuario-chip{
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    background:#0f4c81;
+    color:white;
+}
+
+.texto-vacio{
+    color:#6b7280;
+    font-size:14px;
+}
+
+@media (max-width: 768px){
+    .ficha-grid{
+        grid-template-columns:1fr;
+    }
+
+    .imagen-box{
+        height:260px;
+    }
+}
 </style>
-
-
-
-<!-- ================= FICHA COMPUTADORA ================= -->
 
 <div class="ficha">
 
@@ -192,7 +216,6 @@ background:#f9fbfd;
 
     <div class="ficha-grid">
 
-        <!-- DATOS -->
         <div>
 
             <div class="item">
@@ -205,6 +228,10 @@ background:#f9fbfd;
 
             <div class="item">
                 <strong>Modelo:</strong> {{ $computadora->modelo }}
+            </div>
+
+            <div class="item">
+                <strong>Número de serie:</strong> {{ $computadora->numero_serie }}
             </div>
 
             <div class="item">
@@ -224,8 +251,17 @@ background:#f9fbfd;
             </div>
 
             <div class="item">
-                <strong>Usuario:</strong>
-                {{ $computadora->usuarioAsignado->nombre ?? 'Sin asignar' }}
+                <strong>Usuarios Asignados:</strong>
+
+                @if($computadora->usuarios && $computadora->usuarios->count())
+                    <div class="lista-usuarios">
+                        @foreach($computadora->usuarios as $usuario)
+                            <span class="usuario-chip">{{ $usuario->nombre }}</span>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="texto-vacio">Sin usuarios asignados</div>
+                @endif
             </div>
 
             <div class="item">
@@ -235,21 +271,17 @@ background:#f9fbfd;
 
             <div class="item">
                 <strong>Fecha compra:</strong>
-                {{ $computadora->fecha_compra }}
+                {{ $computadora->fecha_compra ?? 'No registrada' }}
             </div>
 
             <div class="item">
                 <strong>Fin de Garantía:</strong>
-                @if($computadora->fecha_compra && $computadora->vida_util)
-                    {{ \Carbon\Carbon::parse($computadora->fecha_compra)->addYears($computadora->vida_util)->format('Y-m-d') }}
-                @else
-                    No registrada
-                @endif
+                {{ $computadora->fecha_fin_garantia ?? 'No registrada' }}
             </div>
 
             <div class="item">
                 <strong>Vida útil:</strong>
-                {{ $computadora->vida_util }} años
+                {{ $computadora->vida_util ? $computadora->vida_util . ' años' : 'No registrada' }}
             </div>
 
             <div class="item">
@@ -260,7 +292,6 @@ background:#f9fbfd;
             </div>
 
             <div class="acciones">
-
                 <button class="btn-editar"
                     onclick="window.location.href='/computadoras/{{ $computadora->id }}/edit'">
                     Editar
@@ -270,95 +301,76 @@ background:#f9fbfd;
                     onclick="window.location.href='/computadoras'">
                     Volver
                 </button>
-
             </div>
 
         </div>
 
-        <!-- IMAGEN -->
         <div>
-
             <div class="imagen-box">
-
                 @if($computadora->imagen)
-                    <img src="{{ asset($computadora->imagen) }}">
+                    <img src="{{ asset($computadora->imagen) }}" alt="Imagen de la computadora">
                 @else
                     <span style="color:#9ca3af;font-size:13px;">
                         Sin imagen
                     </span>
                 @endif
-
             </div>
-
         </div>
 
     </div>
 </div>
 
-
-<!-- ================= HISTORIAL MANTENIMIENTOS ================= -->
-
 <div class="historial">
 
-<h2>Historial de mantenimientos</h2>
+    <h2>Historial de mantenimientos</h2>
 
-<table class="tabla">
+    <table class="tabla">
 
-<thead>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tipo</th>
+                <th>Fecha</th>
+                <th>Estado</th>
+                <th>Ver</th>
+            </tr>
+        </thead>
 
-<tr>
-<th>ID</th>
-<th>Tipo</th>
-<th>Fecha</th>
-<th>Estado</th>
-<th>Ver</th>
-</tr>
+        <tbody>
+            @forelse($computadora->mantenimientos as $m)
+                <tr>
+                    <td>{{ $m->id }}</td>
 
-</thead>
+                    <td>
+                        <span class="badge badge-{{ strtolower($m->tipo) }}">
+                            {{ $m->tipo }}
+                        </span>
+                    </td>
 
-<tbody>
+                    <td>{{ $m->fecha_programada }}</td>
 
-@forelse($computadora->mantenimientos as $m)
+                    <td>
+                        <span class="badge badge-{{ strtolower($m->estado) }}">
+                            {{ $m->estado }}
+                        </span>
+                    </td>
 
-<tr>
+                    <td>
+                        <a href="/mantenimientos/{{ $m->id }}">
+                            Ver
+                        </a>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5">
+                        Sin mantenimientos registrados
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
 
-<td>{{ $m->id }}</td>
-
-<td>
-<span class="badge badge-{{ strtolower($m->tipo) }}">
-{{ $m->tipo }}
-</span>
-</td>
-
-<td>{{ $m->fecha_programada }}</td>
-
-<td>
-<span class="badge badge-{{ strtolower($m->estado) }}">
-{{ $m->estado }}
-</span>
-</td>
-
-<td>
-<a href="/mantenimientos/{{ $m->id }}">
-Ver
-</a>
-</td>
-
-</tr>
-
-@empty
-
-<tr>
-<td colspan="5">
-Sin mantenimientos registrados
-</td>
-</tr>
-
-@endforelse
-
-</tbody>
-
-</table>
+    </table>
 
 </div>
 

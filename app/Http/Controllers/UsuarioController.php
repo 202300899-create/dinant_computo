@@ -9,10 +9,6 @@ use Illuminate\Http\Request;
 
 class UsuarioController extends Controller
 {
-    /* =========================
-        LISTADO + BUSCADOR
-    ========================= */
-
     public function index(Request $request)
     {
         $buscar = $request->buscar;
@@ -26,20 +22,12 @@ class UsuarioController extends Controller
         return view('usuarios.index', compact('usuarios', 'buscar'));
     }
 
-    /* =========================
-        FORM CREAR
-    ========================= */
-
     public function create()
     {
         $ubicaciones = Ubicacion::all();
 
         return view('usuarios.create', compact('ubicaciones'));
     }
-
-    /* =========================
-        GUARDAR (CORREGIDO 🔥)
-    ========================= */
 
     public function store(Request $request)
     {
@@ -54,35 +42,26 @@ class UsuarioController extends Controller
             'nombre' => $request->nombre,
             'correo' => $request->correo,
             'rol' => $request->rol,
-            'estado' => 'Activo', // 🔥 automático
+            'estado' => 'Activo',
             'id_ubicacion' => $request->id_ubicacion
         ]);
 
-        // 🔥 REDIRECCIÓN A LA FICHA
         return redirect()->route('usuarios.show', $usuario->id)
             ->with('success', 'Usuario creado correctamente');
     }
-
-    /* =========================
-        FICHA USUARIO
-    ========================= */
 
     public function show($id)
     {
         $usuario = Usuario::with(['ubicacion', 'computadoras'])
             ->findOrFail($id);
 
-        $computadorasDisponibles = Computadora::whereNull('id_usuario_asignado')->get();
+        $computadorasDisponibles = Computadora::with('usuarios')->get();
 
         return view('usuarios.show', compact(
             'usuario',
             'computadorasDisponibles'
         ));
     }
-
-    /* =========================
-        FORM EDITAR
-    ========================= */
 
     public function edit($id)
     {
@@ -91,10 +70,6 @@ class UsuarioController extends Controller
 
         return view('usuarios.edit', compact('usuario', 'ubicaciones'));
     }
-
-    /* =========================
-        ACTUALIZAR
-    ========================= */
 
     public function update(Request $request, $id)
     {
@@ -113,38 +88,22 @@ class UsuarioController extends Controller
         $usuario->rol = $request->rol;
         $usuario->estado = $request->estado;
         $usuario->id_ubicacion = $request->id_ubicacion;
-
         $usuario->save();
 
         return redirect()->route('usuarios.index')
             ->with('success', 'Usuario actualizado');
     }
 
-    /* =========================
-        ELIMINAR USUARIO
-    ========================= */
-
     public function destroy($id)
     {
-        $usuario = Usuario::findOrFail($id);
+        $usuario = Usuario::with('computadoras')->findOrFail($id);
 
-        $computadoras = Computadora::where('id_usuario_asignado', $usuario->id)->get();
-
-        foreach ($computadoras as $computadora) {
-            $computadora->id_usuario_asignado = null;
-            $computadora->estado = 'Inactivo';
-            $computadora->save();
-        }
-
+        $usuario->computadoras()->detach();
         $usuario->delete();
 
         return redirect()->route('usuarios.index')
             ->with('success', 'Usuario eliminado');
     }
-
-    /* =========================
-        ASIGNAR EQUIPO
-    ========================= */
 
     public function asignarEquipo(Request $request, $id)
     {
@@ -152,31 +111,37 @@ class UsuarioController extends Controller
             'computadora_id' => 'required|exists:computadoras,id'
         ]);
 
+        $usuario = Usuario::findOrFail($id);
         $computadora = Computadora::findOrFail($request->computadora_id);
 
-        $computadora->id_usuario_asignado = $id;
-        $computadora->estado = 'Activo';
-        $computadora->save();
+        $usuario->computadoras()->syncWithoutDetaching([$computadora->id]);
+
+        if ($computadora->estado !== 'Activo') {
+            $computadora->estado = 'Activo';
+            $computadora->save();
+        }
 
         return redirect()->back()
             ->with('success', 'Equipo asignado correctamente');
     }
 
-    /* =========================
-        QUITAR EQUIPO ASIGNADO
-    ========================= */
-
     public function quitarEquipo($usuarioId, $computadoraId)
     {
-        $computadora = Computadora::findOrFail($computadoraId);
+        $usuario = Usuario::findOrFail($usuarioId);
+        $computadora = Computadora::with('usuarios')->findOrFail($computadoraId);
 
-        if ($computadora->id_usuario_asignado != $usuarioId) {
+        if (!$usuario->computadoras()->where('computadora_id', $computadoraId)->exists()) {
             return redirect()->back();
         }
 
-        $computadora->id_usuario_asignado = null;
-        $computadora->estado = 'Inactivo';
-        $computadora->save();
+        $usuario->computadoras()->detach($computadoraId);
+
+        $computadora->load('usuarios');
+
+        if ($computadora->usuarios->count() === 0) {
+            $computadora->estado = 'Inactivo';
+            $computadora->save();
+        }
 
         return redirect()->back()
             ->with('success', 'Asignación eliminada correctamente');

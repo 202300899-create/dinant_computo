@@ -16,7 +16,7 @@ class ComputadoraController extends Controller
     {
         $buscar = $request->buscar;
 
-        $computadoras = Computadora::with(['ubicacion', 'usuarioAsignado'])
+        $computadoras = Computadora::with(['ubicacion', 'usuarios'])
             ->when($buscar, function ($query) use ($buscar) {
                 $query->where('nombre_equipo', 'like', "%$buscar%")
                     ->orWhere('marca', 'like', "%$buscar%")
@@ -50,28 +50,49 @@ class ComputadoraController extends Controller
             'sistema_operativo' => 'required',
             'fecha_compra' => 'required|date|before_or_equal:today',
             'fecha_fin_garantia' => 'required|date|after_or_equal:fecha_compra',
-            'vida_util' => 'required|numeric',
+            'vida_util' => 'required|numeric|min:1',
+            'id_usuarios_asignados' => 'nullable|array',
+            'id_usuarios_asignados.*' => 'exists:usuarios,id',
+            'id_ubicacion' => 'nullable|exists:ubicaciones,id',
             'imagen' => 'nullable|image|mimes:jpg,jpeg,png'
         ], [
             'nombre_equipo.required' => 'El nombre del equipo es obligatorio.',
             'nombre_equipo.unique' => 'Ya existe una computadora con ese nombre.',
+            'tipo.required' => 'El tipo es obligatorio.',
+            'marca.required' => 'La marca es obligatoria.',
+            'modelo.required' => 'El modelo es obligatorio.',
             'numero_serie.required' => 'El número de serie es obligatorio.',
             'numero_serie.unique' => 'Ya existe una computadora con ese número de serie.',
+            'procesador.required' => 'El procesador es obligatorio.',
+            'ram.required' => 'La memoria RAM es obligatoria.',
+            'almacenamiento.required' => 'El almacenamiento es obligatorio.',
+            'sistema_operativo.required' => 'El sistema operativo es obligatorio.',
+            'fecha_compra.required' => 'La fecha de compra es obligatoria.',
             'fecha_compra.before_or_equal' => 'La fecha de compra no puede ser mayor a la fecha actual.',
+            'fecha_fin_garantia.required' => 'La fecha de fin de garantía es obligatoria.',
             'fecha_fin_garantia.after_or_equal' => 'La fecha de garantía no puede ser menor que la fecha de compra.',
+            'vida_util.required' => 'La vida útil es obligatoria.',
+            'vida_util.numeric' => 'La vida útil debe ser numérica.',
+            'vida_util.min' => 'La vida útil no puede ser menor a 1.',
+            'id_usuarios_asignados.array' => 'Los usuarios asignados deben enviarse como lista.',
+            'id_usuarios_asignados.*.exists' => 'Uno de los usuarios seleccionados no existe.',
+            'id_ubicacion.exists' => 'La ubicación seleccionada no existe.',
             'imagen.image' => 'El archivo debe ser una imagen.',
             'imagen.mimes' => 'Solo se permiten archivos JPG, JPEG o PNG.'
         ]);
 
+        DB::beginTransaction();
+
         try {
             $fechaCompra = Carbon::parse($request->fecha_compra);
             $fechaGarantia = Carbon::parse($request->fecha_fin_garantia);
+            $minimaGarantia = $fechaCompra->copy()->addMonth();
 
-            if ($fechaGarantia->lt($fechaCompra->copy()->addYear())) {
+            if ($fechaGarantia->lt($minimaGarantia)) {
                 return back()
                     ->withInput()
                     ->withErrors([
-                        'fecha_fin_garantia' => 'La fecha de garantía debe ser de al menos 1 año después de la fecha de compra.'
+                        'fecha_fin_garantia' => 'La fecha de garantía debe ser de al menos 1 mes después de la fecha de compra.'
                     ]);
             }
 
@@ -86,7 +107,11 @@ class ComputadoraController extends Controller
             $datos['ram'] = trim($request->ram);
             $datos['almacenamiento'] = trim($request->almacenamiento);
             $datos['sistema_operativo'] = trim($request->sistema_operativo);
+            $datos['fecha_compra'] = $request->fecha_compra;
+            $datos['fecha_fin_garantia'] = $request->fecha_fin_garantia;
+            $datos['vida_util'] = $request->vida_util;
             $datos['estado'] = 'Activo';
+            $datos['id_ubicacion'] = $request->id_ubicacion;
 
             if ($request->hasFile('imagen')) {
                 $nombre = time() . '_' . $request->file('imagen')->getClientOriginalName();
@@ -94,17 +119,28 @@ class ComputadoraController extends Controller
                 $datos['imagen'] = 'images/' . $nombre;
             }
 
+            unset($datos['id_usuarios_asignados']);
+
             $computadora = Computadora::create($datos);
+
+            $usuariosAsignados = $request->id_usuarios_asignados ?? [];
+            $computadora->usuarios()->sync($usuariosAsignados);
+
+            DB::commit();
 
             return redirect()->route('computadoras.show', $computadora->id)
                 ->with('success', 'Computadora creada correctamente');
 
         } catch (QueryException $e) {
+            DB::rollBack();
+
             return back()
                 ->withInput()
                 ->with('error', 'Error: el nombre del equipo o el número de serie ya están registrados.');
 
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return back()
                 ->withInput()
                 ->with('error', 'Ocurrió un error inesperado al guardar la computadora.');
@@ -113,7 +149,7 @@ class ComputadoraController extends Controller
 
     public function edit($id)
     {
-        $computadora = Computadora::findOrFail($id);
+        $computadora = Computadora::with('usuarios')->findOrFail($id);
         $usuarios = Usuario::all();
         $ubicaciones = Ubicacion::all();
 
@@ -122,7 +158,7 @@ class ComputadoraController extends Controller
 
     public function update(Request $request, $id)
     {
-        $computadora = Computadora::findOrFail($id);
+        $computadora = Computadora::with('usuarios')->findOrFail($id);
 
         $request->validate([
             'nombre_equipo' => 'required|unique:computadoras,nombre_equipo,' . $computadora->id,
@@ -136,29 +172,51 @@ class ComputadoraController extends Controller
             'sistema_operativo' => 'required',
             'fecha_compra' => 'required|date|before_or_equal:today',
             'fecha_fin_garantia' => 'required|date|after_or_equal:fecha_compra',
-            'vida_util' => 'required|numeric',
+            'vida_util' => 'required|numeric|min:1',
             'estado' => 'required',
+            'id_usuarios_asignados' => 'nullable|array',
+            'id_usuarios_asignados.*' => 'exists:usuarios,id',
+            'id_ubicacion' => 'nullable|exists:ubicaciones,id',
             'imagen' => 'nullable|image|mimes:jpg,jpeg,png'
         ], [
             'nombre_equipo.required' => 'El nombre del equipo es obligatorio.',
             'nombre_equipo.unique' => 'Ese nombre ya está siendo usado por otra computadora.',
+            'tipo.required' => 'El tipo es obligatorio.',
+            'marca.required' => 'La marca es obligatoria.',
+            'modelo.required' => 'El modelo es obligatorio.',
             'numero_serie.required' => 'El número de serie es obligatorio.',
             'numero_serie.unique' => 'Ese número de serie ya pertenece a otra computadora.',
+            'procesador.required' => 'El procesador es obligatorio.',
+            'ram.required' => 'La memoria RAM es obligatoria.',
+            'almacenamiento.required' => 'El almacenamiento es obligatorio.',
+            'sistema_operativo.required' => 'El sistema operativo es obligatorio.',
+            'fecha_compra.required' => 'La fecha de compra es obligatoria.',
             'fecha_compra.before_or_equal' => 'La fecha de compra no puede ser mayor a la fecha actual.',
+            'fecha_fin_garantia.required' => 'La fecha de fin de garantía es obligatoria.',
             'fecha_fin_garantia.after_or_equal' => 'La fecha de garantía no puede ser menor que la fecha de compra.',
+            'vida_util.required' => 'La vida útil es obligatoria.',
+            'vida_util.numeric' => 'La vida útil debe ser numérica.',
+            'vida_util.min' => 'La vida útil no puede ser menor a 1.',
+            'estado.required' => 'El estado es obligatorio.',
+            'id_usuarios_asignados.array' => 'Los usuarios asignados deben enviarse como lista.',
+            'id_usuarios_asignados.*.exists' => 'Uno de los usuarios seleccionados no existe.',
+            'id_ubicacion.exists' => 'La ubicación seleccionada no existe.',
             'imagen.image' => 'El archivo debe ser una imagen.',
             'imagen.mimes' => 'Solo se permiten archivos JPG, JPEG o PNG.'
         ]);
 
+        DB::beginTransaction();
+
         try {
             $fechaCompra = Carbon::parse($request->fecha_compra);
             $fechaGarantia = Carbon::parse($request->fecha_fin_garantia);
+            $minimaGarantia = $fechaCompra->copy()->addMonth();
 
-            if ($fechaGarantia->lt($fechaCompra->copy()->addYear())) {
+            if ($fechaGarantia->lt($minimaGarantia)) {
                 return back()
                     ->withInput()
                     ->withErrors([
-                        'fecha_fin_garantia' => 'La fecha de garantía debe ser de al menos 1 año después de la fecha de compra.'
+                        'fecha_fin_garantia' => 'La fecha de garantía debe ser de al menos 1 mes después de la fecha de compra.'
                     ]);
             }
 
@@ -175,7 +233,6 @@ class ComputadoraController extends Controller
             $computadora->fecha_fin_garantia = $request->fecha_fin_garantia;
             $computadora->vida_util = $request->vida_util;
             $computadora->estado = trim($request->estado);
-            $computadora->id_usuario_asignado = $request->id_usuario_asignado;
             $computadora->id_ubicacion = $request->id_ubicacion;
 
             if ($request->hasFile('imagen')) {
@@ -190,15 +247,24 @@ class ComputadoraController extends Controller
 
             $computadora->save();
 
+            $usuariosAsignados = $request->id_usuarios_asignados ?? [];
+            $computadora->usuarios()->sync($usuariosAsignados);
+
+            DB::commit();
+
             return redirect()->route('computadoras.show', $computadora->id)
                 ->with('success', 'Computadora actualizada correctamente');
 
         } catch (QueryException $e) {
+            DB::rollBack();
+
             return back()
                 ->withInput()
                 ->with('error', 'Error al actualizar: el nombre del equipo o el número de serie ya existen.');
 
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return back()
                 ->withInput()
                 ->with('error', 'Ocurrió un error inesperado al actualizar la computadora.');
@@ -213,6 +279,8 @@ class ComputadoraController extends Controller
             if ($computadora->imagen && file_exists(public_path($computadora->imagen))) {
                 unlink(public_path($computadora->imagen));
             }
+
+            $computadora->usuarios()->detach();
 
             if (method_exists($computadora, 'mantenimientos')) {
                 $computadora->mantenimientos()->delete();
@@ -241,7 +309,7 @@ class ComputadoraController extends Controller
     {
         $computadora = Computadora::with([
             'ubicacion',
-            'usuarioAsignado',
+            'usuarios',
             'mantenimientos' => function ($query) {
                 $query->orderBy('fecha_programada', 'desc');
             }
