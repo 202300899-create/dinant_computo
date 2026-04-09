@@ -11,21 +11,22 @@ class CalendarioController extends Controller
     public function index(Request $request)
     {
         /* ================= PARAMETROS ================= */
-        $mes  = $request->mes  ?? now()->month;
+        $mes  = $request->mes ?? now()->month;
         $anio = $request->anio ?? now()->year;
         $tipo = $request->tipo;
 
         /* ================= FECHA BASE ================= */
+        Carbon::setLocale('es');
         $fecha = Carbon::create($anio, $mes, 1);
 
         /* ================= QUERY BASE ================= */
         $query = Mantenimiento::with('computadora')
             ->whereYear('fecha_programada', $anio)
             ->whereMonth('fecha_programada', $mes)
-            ->where('estado','Pendiente'); // 🔴 SOLO MOSTRAR PENDIENTES
+            ->whereIn('estado', ['Pendiente', 'Completado']);
 
         /* ================= FILTRO TIPO ================= */
-        if($tipo){
+        if ($tipo) {
             $query->where('tipo', $tipo);
         }
 

@@ -2,6 +2,34 @@
 
 @section('content')
 
+@php
+    use Carbon\Carbon;
+
+    Carbon::setLocale('es');
+
+    $diasMes = $fecha->daysInMonth;
+    $primerDia = $fecha->copy()->startOfMonth()->dayOfWeekIso;
+
+    $mantenimientosPendientes = $mantenimientos
+        ->filter(fn($m) => strtolower(trim($m->estado)) === 'pendiente')
+        ->sortBy('fecha_programada');
+
+    $nombreMeses = [
+        1 => 'Enero',
+        2 => 'Febrero',
+        3 => 'Marzo',
+        4 => 'Abril',
+        5 => 'Mayo',
+        6 => 'Junio',
+        7 => 'Julio',
+        8 => 'Agosto',
+        9 => 'Septiembre',
+        10 => 'Octubre',
+        11 => 'Noviembre',
+        12 => 'Diciembre',
+    ];
+@endphp
+
 <div class="pagina">
 
     <h1 class="titulo-seccion">Calendario de mantenimientos</h1>
@@ -11,7 +39,7 @@
         <select name="mes">
             @foreach(range(1,12) as $m)
                 <option value="{{ $m }}" {{ $m == $mes ? 'selected' : '' }}>
-                    {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                    {{ $nombreMeses[$m] }}
                 </option>
             @endforeach
         </select>
@@ -34,12 +62,6 @@
         <a href="{{ route('calendario.index') }}" class="btn-limpiar">Limpiar</a>
 
     </form>
-
-    @php
-        use Carbon\Carbon;
-        $diasMes = $fecha->daysInMonth;
-        $primerDia = $fecha->copy()->startOfMonth()->dayOfWeekIso;
-    @endphp
 
     <div class="contenedor">
 
@@ -65,12 +87,28 @@
                                 <div class="numero">{{ $dia }}</div>
 
                                 @foreach($mantenimientos as $m)
-                                    @php $f = Carbon::parse($m->fecha_programada); @endphp
+                                    @php
+                                        $f = Carbon::parse($m->fecha_programada);
+                                        $estado = strtolower(trim($m->estado));
+                                        $tipoEvento = strtolower(trim($m->tipo));
+
+                                        $claseTipo = $tipoEvento === 'preventivo' ? 'preventivo' : 'correctivo';
+                                        $claseEstado = $estado === 'completado' ? 'estado-completado' : 'estado-pendiente';
+                                        $textoEstado = $estado === 'completado' ? 'Completado' : 'Pendiente';
+                                    @endphp
 
                                     @if($f->day == $dia && $f->month == $fecha->month && $f->year == $fecha->year)
                                         <a href="{{ route('mantenimientos.show', ['mantenimiento' => $m->id, 'origen' => 'calendario']) }}"
-                                           class="evento {{ strtolower($m->tipo) }}">
-                                            {{ $m->computadora->nombre_equipo }}
+                                           class="evento"
+                                           title="{{ $m->computadora->nombre_equipo }} - {{ $m->tipo }} - {{ $m->estado }}">
+
+                                            <span class="evento-nombre {{ $claseTipo }}">
+                                                {{ $m->computadora->nombre_equipo }}
+                                            </span>
+
+                                            <span class="evento-estado {{ $claseEstado }}">
+                                                {{ $textoEstado }}
+                                            </span>
                                         </a>
                                     @endif
                                 @endforeach
@@ -87,10 +125,10 @@
         </div>
 
         <div class="panel">
-            <h3>Mantenimientos</h3>
+            <h3>Pendientes</h3>
 
             <div class="panel-scroll">
-                @foreach($mantenimientos->sortBy('fecha_programada') as $m)
+                @forelse($mantenimientosPendientes as $m)
                     <div class="item">
 
                         <div class="fila-top">
@@ -99,7 +137,7 @@
                             </a>
 
                             <div class="fecha">
-                                {{ \Carbon\Carbon::parse($m->fecha_programada)->format('d M Y') }}
+                                {{ \Carbon\Carbon::parse($m->fecha_programada)->translatedFormat('d M Y') }}
                             </div>
                         </div>
 
@@ -109,7 +147,11 @@
                         </div>
 
                     </div>
-                @endforeach
+                @empty
+                    <div class="sin-pendientes">
+                        No hay mantenimientos pendientes en este período.
+                    </div>
+                @endforelse
             </div>
         </div>
 
@@ -232,7 +274,7 @@
 
 .calendario td{
     border: 1px solid #e5e7eb;
-    height: 85px;
+    height: 95px;
     vertical-align: top;
     padding: 4px;
     overflow: hidden;
@@ -244,25 +286,48 @@
 }
 
 .evento{
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    margin-top: 3px;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.evento-nombre,
+.evento-estado{
+    display: inline-block;
+    max-width: 100%;
     font-size: 10px;
-    padding: 2px 4px;
+    padding: 2px 5px;
     border-radius: 4px;
-    margin-top: 2px;
+    font-weight: 600;
+    line-height: 1.15;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    text-decoration: none;
+    box-sizing: border-box;
 }
 
-.evento.preventivo{
+.evento-nombre.preventivo{
     background: #2563eb;
     color: white;
 }
 
-.evento.correctivo{
+.evento-nombre.correctivo{
     background: #facc15;
     color: #000;
+}
+
+.evento-estado.estado-completado{
+    background: #22c55e;
+    color: white;
+}
+
+.evento-estado.estado-pendiente{
+    background: #ef4444;
+    color: white;
 }
 
 .panel{
@@ -329,7 +394,7 @@
     color: white;
 }
 
-.estado-pendiente{
+.badge.estado-pendiente{
     background: #ef4444;
 }
 
@@ -341,6 +406,12 @@
 .badge.correctivo{
     background: #facc15;
     color: #000;
+}
+
+.sin-pendientes{
+    font-size: 13px;
+    color: #6b7280;
+    padding: 10px 0;
 }
 
 body{

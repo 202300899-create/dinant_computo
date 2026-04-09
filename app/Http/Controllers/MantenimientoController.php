@@ -14,21 +14,18 @@ class MantenimientoController extends Controller
     {
         $query = Mantenimiento::with('computadora');
 
-        if ($request->estado) {
+        if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
 
-        if ($request->tipo) {
+        if ($request->filled('tipo')) {
             $query->where('tipo', $request->tipo);
         }
 
-        // ================= ORDEN =================
         $hoy = Carbon::today()->toDateString();
 
         if ($request->filled('orden')) {
             switch ($request->orden) {
-
-                // DESDE HOY HACIA ADELANTE EN SECUENCIA
                 case 'recientes':
                     $query->orderByRaw("
                         CASE
@@ -48,23 +45,19 @@ class MantenimientoController extends Controller
                     ", [$hoy]);
                     break;
 
-                // DEL MÁS VIEJO AL MÁS NUEVO
                 case 'antiguos':
                     $query->orderByRaw('COALESCE(fecha_realizada, fecha_programada) ASC');
                     break;
 
-                // MODIFICADOS RECIENTEMENTE
                 case 'modificados':
                     $query->orderBy('updated_at', 'desc');
                     break;
 
-                // SI VIENE ALGO RARO, DEJAR POR ID DESC
                 default:
                     $query->orderBy('id', 'desc');
                     break;
             }
         } else {
-            // ORDEN POR DEFECTO: ID MAYOR A MENOR
             $query->orderBy('id', 'desc');
         }
 
@@ -88,22 +81,19 @@ class MantenimientoController extends Controller
             'id_computadora'   => 'required|exists:computadoras,id',
             'tipo'             => 'required|in:Preventivo,Correctivo',
             'fecha_programada' => 'required|date|after_or_equal:' . now()->startOfYear()->format('Y-m-d'),
-            'estado'           => 'required|in:Pendiente,En proceso',
             'observaciones'    => ['required', 'string', 'max:500', 'regex:/^[^\d]+$/u']
         ], [
-            'id_computadora.required'   => 'Debes seleccionar una computadora.',
-            'id_computadora.exists'     => 'La computadora seleccionada no es válida.',
-            'tipo.required'             => 'Debes seleccionar el tipo de mantenimiento.',
-            'tipo.in'                   => 'El tipo seleccionado no es válido.',
-            'fecha_programada.required' => 'Debes ingresar la fecha programada.',
-            'fecha_programada.date'     => 'La fecha programada no es válida.',
+            'id_computadora.required'         => 'Debes seleccionar una computadora.',
+            'id_computadora.exists'           => 'La computadora seleccionada no es válida.',
+            'tipo.required'                   => 'Debes seleccionar el tipo de mantenimiento.',
+            'tipo.in'                         => 'El tipo seleccionado no es válido.',
+            'fecha_programada.required'       => 'Debes ingresar la fecha programada.',
+            'fecha_programada.date'           => 'La fecha programada no es válida.',
             'fecha_programada.after_or_equal' => 'No se permiten fechas de años pasados.',
-            'estado.required'           => 'Debes seleccionar el estado.',
-            'estado.in'                 => 'El estado seleccionado no es válido.',
-            'observaciones.required'    => 'Debes escribir las observaciones.',
-            'observaciones.string'      => 'Las observaciones deben ser texto.',
-            'observaciones.max'         => 'Las observaciones no pueden superar los 500 caracteres.',
-            'observaciones.regex'       => 'Las observaciones no pueden contener números.'
+            'observaciones.required'          => 'Debes escribir las observaciones.',
+            'observaciones.string'            => 'Las observaciones deben ser texto.',
+            'observaciones.max'               => 'Las observaciones no pueden superar los 500 caracteres.',
+            'observaciones.regex'             => 'Las observaciones no pueden contener números.'
         ]);
 
         Mantenimiento::create([
@@ -111,7 +101,7 @@ class MantenimientoController extends Controller
             'tipo'             => $request->tipo,
             'descripcion'      => trim($request->observaciones),
             'fecha_programada' => $request->fecha_programada,
-            'estado'           => $request->estado
+            'estado'           => 'Pendiente'
         ]);
 
         return redirect()->route('mantenimientos.index')
@@ -132,7 +122,7 @@ class MantenimientoController extends Controller
     {
         $mantenimiento = Mantenimiento::findOrFail($id);
         $computadoras = Computadora::all();
-        $origen = $request->origen;
+        $origen = $request->origen ?? 'mantenimientos';
 
         return view('mantenimientos.edit', compact('mantenimiento', 'computadoras', 'origen'));
     }
@@ -142,36 +132,44 @@ class MantenimientoController extends Controller
     {
         $mantenimiento = Mantenimiento::findOrFail($id);
 
+        if ($mantenimiento->estado === 'Completado') {
+            return back()
+                ->with('error', 'Este ticket ya está completado y no se puede modificar.');
+        }
+
         $request->validate([
-            'estado'      => 'required|in:Pendiente,En proceso,Completado',
+            'estado'      => 'required|in:Pendiente,Completado',
             'descripcion' => ['required', 'string', 'max:500', 'regex:/^[^\d]+$/u']
         ], [
             'estado.required'      => 'Debes seleccionar el estado.',
-            'estado.in'            => 'El estado seleccionado no es válido.',
+            'estado.in'            => 'Solo puedes dejar el ticket como Pendiente o Completado.',
             'descripcion.required' => 'Debes escribir una observación.',
             'descripcion.string'   => 'La observación debe ser texto.',
             'descripcion.max'      => 'La observación no puede superar los 500 caracteres.',
             'descripcion.regex'    => 'La observación no puede contener números.'
         ]);
 
-        $mantenimiento->estado = $request->estado;
-        $mantenimiento->descripcion = trim($request->descripcion);
-
-        if ($request->estado == 'Completado' && !$mantenimiento->fecha_realizada) {
-            $mantenimiento->fecha_realizada = Carbon::now();
-
-            if ($mantenimiento->tipo == 'Preventivo') {
-                Mantenimiento::create([
-                    'id_computadora'   => $mantenimiento->id_computadora,
-                    'tipo'             => 'Preventivo',
-                    'descripcion'      => 'Mantenimiento preventivo generado automáticamente',
-                    'fecha_programada' => Carbon::now()->addMonths(6),
-                    'estado'           => 'Pendiente'
-                ]);
-            }
+        if ($request->estado !== 'Completado') {
+            return back()
+                ->withInput()
+                ->with('error', 'No puedes cerrar el ticket si sigue en Pendiente. Debes marcarlo como Completado.');
         }
 
+        $mantenimiento->estado = 'Completado';
+        $mantenimiento->descripcion = trim($request->descripcion);
+        $mantenimiento->fecha_realizada = Carbon::now();
+
         $mantenimiento->save();
+
+        if ($mantenimiento->tipo === 'Preventivo') {
+            Mantenimiento::create([
+                'id_computadora'   => $mantenimiento->id_computadora,
+                'tipo'             => 'Preventivo',
+                'descripcion'      => 'Mantenimiento preventivo generado automáticamente',
+                'fecha_programada' => Carbon::now()->addMonths(6)->toDateString(),
+                'estado'           => 'Pendiente'
+            ]);
+        }
 
         if ($request->origen === 'calendario') {
             return redirect()->route('calendario.index')
@@ -181,7 +179,7 @@ class MantenimientoController extends Controller
         return redirect()->route('mantenimientos.show', [
             'mantenimiento' => $mantenimiento->id,
             'origen' => 'mantenimientos'
-        ])->with('success', 'Mantenimiento actualizado correctamente.');
+        ])->with('success', 'Ticket cerrado correctamente.');
     }
 
     /* ================= DESTROY ================= */

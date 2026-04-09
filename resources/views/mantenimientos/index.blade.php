@@ -376,7 +376,6 @@ left:120%;
 <option value="">Estado</option>
 <option value="Pendiente" {{ request('estado')=='Pendiente'?'selected':'' }}>Pendiente</option>
 <option value="Completado" {{ request('estado')=='Completado'?'selected':'' }}>Completado</option>
-<option value="En proceso" {{ request('estado')=='En proceso'?'selected':'' }}>En proceso</option>
 </select>
 
 <select name="tipo">
